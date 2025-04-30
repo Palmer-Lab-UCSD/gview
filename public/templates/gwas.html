@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/d3@^5.16.0"></script>
+<script type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/locuszoom@0.14.0/dist/locuszoom.app.min.js"></script>
+<script type="text/javascript"
+      src="/public/static/js/locuszoom_adapters.js"></script>
+<script type="text/javascript"
+      src="/public/static/js/locuszoom_layout.js"></script>
+<script type="text/javascript"
+      src="/public/static/js/gwas.js"></script>
+<link rel="stylesheet"
+      type="text/css"
+      href="/public/static/css/site.css">
+<link rel="stylesheet" 
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/locuszoom@0.14.0/dist/locuszoom.css"/>
+<title>Locus Zoom</title>
+</head>
+<header style="height:5em;position:sticky;top:0;z-index:1;background:white">
+    <a href="/">
+        <img class="header-img"
+            src="/public/static/assets/home.png"
+            width="250px"
+            alt="Go to landing page"/>
+    </a>
+</header>
+
+<body>
+    <div class="container">
+        <div class="side">
+            <label for="projectId" style="font-family:sans-serif;margin-left:1rem">Project Ids</label>
+            <select id="projectId" class="plab" required>
+                <option value="">Select project id</option>
+                {{range .Projects}}
+                <option value="{{.}}">{{.}}</option>
+                {{end}}
+            </select>
+            <label for="phenotype" style="font-family:sans-serif;margin-left:1rem">Phenotypes</label>
+            <select id="phenotype" class="plab" width="100%">
+                <option value="">Select phenotype</option>
+            </select>
+            <label for="chr" style="font-family:sans-serif;margin-left:1rem">Chromosomes</label>
+            <select id="chr" class="plab" width="100%">
+                <option value="">Select chromosome</option>
+            </select>
+            <!-- 
+                <center>
+                <button class="query">Query</button>
+                </center>
+            -->
+        </div>
+
+        <div class="content">
+            <center>
+            <div id='lzplot'>
+            </div>
+            </center>
+        </div>
+    </div>
+</body>
+
+<script type="text/javascript">
+    let plotListener = null
+    let plot = null
+
+    let queryElements = new Map();
+    queryElements.set("projectId", document.getElementById("projectId"));
+    queryElements.set("phenotype", document.getElementById("phenotype"));
+    queryElements.set("chr", document.getElementById("chr"));
+
+    queryElements.get("projectId").eventProcessor = getPhenotypeFromQuery("/api/gwas/phenos",
+                                                            "projectId");
+    queryElements.get("phenotype").eventProcessor = getChrFromQuery("/api/gwas/chr",
+                                                            "projectId",
+                                                            "phenotype");
+    queryElements.get("chr").eventProcessor = initializeAssociationPlot("/api/gwas/assoc",
+                                                            "projectId",
+                                                            "phenotype",
+                                                            "chr",
+                                                            "lzplot");
+
+    createListeners(queryElements)
+</script>
+
+
+</html>
+
+<!-- 
+                        {
+                            namespace:{'assoc':'myAssocTest'},
+                            id:"assoc",
+                            type: "scatter",
+                            x_axis: {field: 'assoc:position'},
+                            y_axis: {
+                                axis: 1,
+                                field: 'assoc:log_pvalue',
+                                floor: 0,
+                                upper_buffer: 0.10,
+                                min_extent: [0, 10]
+                            }
+                        }
+                    ]
+            //responsive_resize: true,
+            //min_region_scale: 20000,
+            //max_region_scale: 1000000,
+    class MyAdapter extends LocusZoom.Adapters.get("BaseLZAdapter") {
+        _normalizeResponse(response_text, options) {
+            let data = super._normalizeResponse(...arguments);
+            // Most portaldev endpoints (though not all) store the desired response in just one specific part of the payload
+            data = data.data || data;
+
+            if (Array.isArray(data)) {
+                // Already in the desired form
+                return data;
+            }
+            console.error("Not working");
+            throw new Error("weird");
+
+        }
+    }
+    class MyGeneAdapter extends LocusZoom.Adapters.get("BaseLZAdapter") {};
+
+    assoc_adapter = new MyAdapter({url: "/public/ds/assoc_corrected.json"});
+    recomb_adapter = new MyAdapter({url: "/public/ds/recomb_corrected.json"});
+    ld_adapter = new MyAdapter({url: "/public/ds/ld_corrected.json"});
+    gene_adapter = new MyAdapter({url: "/public/ds/genes.json"});
+    constraint_adapter = new MyAdapter({url: "/public/ds/constraint.json"});
+
+    let data_sources = new LocusZoom.DataSources()
+        .add("assoc",   assoc_adapter)
+        .add("recomb",  recomb_adapter)
+        .add("ld",      ld_adapter)
+        .add("gene",    ["GeneLZ", {url: "/public/ds/genes.json"}])
+        .add("constraint", constraint_adapter);
+
+    let layout = {
+        width: 800,
+        state: {
+            genome_build: "GRCh37",  // or whatever build your data uses
+            chr: 10,                 // specify your chromosome
+            start: 114550452,        // start position
+            end: 115067678          // end position
+        },
+        panels: [
+            LocusZoom.Layouts.get("panel", "association"),
+            LocusZoom.Layouts.get("panel", "genes")
+        ]
+    };
+
+
+
+    const plot = LocusZoom.populate("#lz-plot", data_sources, layout);
+        -->

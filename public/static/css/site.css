@@ -1,0 +1,137 @@
+.inputBox {
+    margin: 1em;
+    padding: 1.5em;
+    border-radius: 0.75em;
+    border-style: solid;
+    border-width: 0.1em;
+    border-color: #D6D6D6;
+}
+
+button, .button {
+    display: inline;
+    margin: 1em;
+    padding: 1em;
+    border-radius: 0.75em;
+    border-width: 0.1em;
+    border-color: white;
+    border-style: solid;
+    background-color: #EBEBEB;
+    font-family: sans-serif;
+    font-size: 0.8rem;
+}
+
+button:hover, .button:hover {
+    border-color: #D6D6D6;
+    cursor: pointer;
+}
+
+a.button {
+    margin: 1em;
+    padding: 1em;
+    border-radius: 0.75em;
+    border-width: 0.1em;
+    border-color: white;
+    border-style: solid;
+    background-color: #EBEBEB;
+    font-family: sans-serif;
+    font-size: 1rem;
+    color: black;
+    text-decoration: none;
+}
+
+a.button:hover {
+    border-color: #D6D6D6;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+button.query {
+    width:50%;
+    background:white;
+    border-color:#EBEBEB;
+    border-width:.15em;
+}
+button.query:hover {
+    border-color: #424242;
+    cursor: pointer;
+    border-width:.15em;
+    text-decoration: none;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: repeat(12, [col-start] 1fr);
+    gap: 20px;
+    grid-column: col-start / span 12;
+}
+
+@media (min-width: 700px) {
+    .content {
+      grid-column: col-start 4 / span 8;
+      grid-row: 1 / 4;
+    }
+    .side {
+      grid-column: col-start 1 / span 3;
+      grid-row: 1 / 4;
+      position: sticky;
+      top: 1rem;
+    }
+    .main-footer {
+      grid-column: col-start / span 12;
+    }
+    nav ul {
+      flex-direction: column;
+    }
+}
+header {
+    height: 20%;
+}
+
+select.plab {
+    display: inline;
+    margin: 1em;
+    padding: 1em;
+    border-radius: 0.75em;
+    border-width: 0.15em;
+    border-color: #EBEBEB;
+    border-style: solid;
+    background-color: white;
+    width: 100%;
+    font-family: sans-serif;
+    font-size: 1rem;
+}
+
+select.plab:hover {
+    border-color:#424242;
+}
+
+/*
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 15%;
+    height: 100vh;
+    overflow-y: auto; 
+    background-color: #f5f5f5;
+    border-right: 1px solid #ddd;
+    position: fixed; 
+    left: 0;
+    top: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.main-content {
+    margin-left: 15%;
+    width: 85%;
+    height: 100vh;
+    overflow-y: auto; 
+    padding: 20px;
+    box-sizing: border-box;
+}
+*/
+
+/* End of code by Claude, the AI assistant by anthropic */

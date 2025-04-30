@@ -1,0 +1,11 @@
+*.DS_Store
+*.key
+pkg/
+db/
+main
+*.swp
+public/ds/
+internal/etc/
+scratch/
+example/
+data/

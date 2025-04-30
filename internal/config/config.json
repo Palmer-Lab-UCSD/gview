@@ -1,0 +1,28 @@
+{
+    "RootDir":"",
+    "HostName" : "localhost",
+    "Port" : "8000",
+    "Api": {
+        "MaxGenomicCoordDomain" : 10000000,
+        "Js" : "public/static/js",
+        "Css" : "public/static/css",
+        "Templates" : "public/templates"
+    },
+    "Log": {
+        "Dir": "logs",
+        "MaxFileSize": 50000000
+    },
+    "Db": {
+        "Driver" : "postgres",
+        "PasswdEnvName" : "DB_PASSWD",
+        "UserEnvVar" : "DB_UNAME",
+        "Name" : "plab",
+        "Port" : "5432",
+        "HostName" : "localhost",
+        "SslMode" : "disable",
+        "SslCert": "",
+        "SslKey" : "",
+        "SslRootCert": "",
+        "ConnectionTimeOut": ""
+    }
+}
