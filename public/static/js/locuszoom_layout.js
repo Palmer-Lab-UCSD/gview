@@ -17,7 +17,7 @@ function layer_association_pvalues(dataNamespace, xfield, yfield) {
             field: `assoc:${yfield}`,
             floor: 0,
             upper_buffer: 0.10,
-            min_extent: [0, 1],
+            min_extent: [0, 10],
         }
     };
 }
@@ -57,16 +57,24 @@ function layer_gene(namespace) {
 //      objects returned by functions 'layer_*'
 //      [ouput_layer_func, output_layer_func, ...]
 //  width:  plot (integer)
-function association_layout(state, data_layers, width=700) {
+function association_layout(state, data_layers, height=500, width=900) {
     return {
+        height: height,
         width: width,
         state: state,
+        responsive_resize: true,
         panels: [
             {
                 id: "assoc",
                 height: 300,
                 margin: { top: 35, right: 55, bottom: 40, left: 70 },
                 inner_border: 'rgb(210, 210, 210)',
+                min_region_scale: 100000,       // 100 Kb
+                max_region_scale:100000000,     // 100 Mb
+                interaction: {
+                    drag_background_to_pan: true,
+                    scroll_to_zoom: true
+                },
                 axes: {
                     x: {
                         label: `Chromosome ${state.chr} (Mb)`,

@@ -116,7 +116,7 @@ function initializeAssociationPlot(url,
                     start: positionBounds[0],
                     stop: positionBounds[1],
                     end: positionBounds[1]
-                }
+                };
 
                 assocAdapter = new PlabAssocAdapter({
                         url:'/api/gwas/loci',
@@ -125,16 +125,16 @@ function initializeAssociationPlot(url,
                 let data_sources = new LocusZoom.DataSources()
                      .add("assoc", assocAdapter);
 
-                assocLayer = layer_association_pvalues('assoc', 'Pos', 'NegLogPval')
-                layout = association_layout(state, [assocLayer])
+                assocLayer = layer_association_pvalues('assoc', 'Pos', 'NegLogPval');
+                layout = association_layout(state, [assocLayer]);
 
                 plot = LocusZoom.populate(`#${htmlIdForLZPlot}`,
                     data_sources,
                     layout);
-                //plotListener = plot.on("element_selection",
-                //    (event) => {
-                //        console.log('LZplot event: ', event)
-                //})
+                plot.on("region_changed",
+                    (event) => {
+                        console.log('LZplot event: ', event)
+                })
             });
     };
 }

@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -96,7 +97,7 @@ func processLociQuery(w http.ResponseWriter,
 	var start []string
 	var stop []string
 	var ok bool
-
+	fmt.Println(q)
 	if chr, ok = q["chr"]; !ok {
 		return errors.New("chr is required input parameter")
 	}
