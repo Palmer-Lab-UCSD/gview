@@ -4,12 +4,26 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"math"
 	"os"
 
 	_ "github.com/lib/pq"
 	"github.com/palmer-lab-ucsd/gview/internal/config"
 )
+
+type GeneAnnotationRecord struct {
+	Id                uint64
+	Chr               string
+	Refseq            string
+	Feature           string
+	Start             uint64
+	End               uint64
+	Strand            string
+	GeneId            string
+	TranscriptId      string
+	Product           string
+	GeneBiotype       string
+	TranscriptBiotype string
+}
 
 type GwasLocusRecord struct {
 	Chr        string
@@ -84,12 +98,11 @@ func ProcessGwasRecords(rows *sql.Rows) ([]GwasLocusRecord, error) {
 			&tmp.Freq,
 			&tmp.EffectSize,
 			&tmp.StdError,
-			&tmp.Pval)
+			&tmp.Pval,
+			&tmp.NegLogPval)
 		if err != nil {
 			return make([]GwasLocusRecord, 0), err
 		}
-
-		tmp.NegLogPval = -math.Log10(tmp.Pval)
 		output = append(output, tmp)
 	}
 
@@ -151,10 +164,6 @@ func open(dbCfg *config.DatabaseConfig) (*OrgDb, error) {
 		return nil, err
 	}
 	orgDb := &OrgDb{DB: db}
-
-	if err != nil {
-		return nil, err
-	}
 
 	return orgDb, nil
 }

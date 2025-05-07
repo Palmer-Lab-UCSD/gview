@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+
 	"github.com/palmer-lab-ucsd/gview/internal/application"
 )
 
-func indexGet(w http.ResponseWriter, r *http.Request) error {
+func indexGet(w http.ResponseWriter, _ *http.Request) error {
 	body, err := os.ReadFile("public/index.html")
 
 	if err != nil {

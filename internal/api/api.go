@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -12,9 +11,46 @@ import (
 	"github.com/palmer-lab-ucsd/gview/internal/service"
 )
 
-const (
-	assocPlotMaxRange uint = 1000000
-)
+func processGeneQuery(w http.ResponseWriter,
+	r *http.Request,
+	db *service.OrgDb) error {
+
+	w.Header().Add("Content-Type", "application/json")
+
+	var err error
+	var output []service.GeneAnnotationRecord
+
+	output, err = service.GetGenes(db,
+		r.URL.Query()["chr"][0],
+		r.URL.Query()["start"][0],
+		r.URL.Query()["end"][0])
+
+	var output_json []byte
+	if err != nil {
+		place_holder := make([]service.GeneAnnotationRecord, 0)
+		w.WriteHeader(http.StatusInternalServerError)
+		output_json, err = json.Marshal(place_holder)
+		_, _ = w.Write(output_json)
+		return err
+	}
+
+	output_json, err = json.Marshal(output)
+	if err != nil {
+		place_holder := make([]service.GeneAnnotationRecord, 0)
+		w.WriteHeader(http.StatusInternalServerError)
+		output_json, err = json.Marshal(place_holder)
+		_, _ = w.Write(output_json)
+		return err
+	}
+
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(output_json)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func processPhenoQuery(w http.ResponseWriter,
 	r *http.Request,
@@ -95,9 +131,9 @@ func processLociQuery(w http.ResponseWriter,
 	var schema []string
 	var table []string
 	var start []string
-	var stop []string
+	var end []string
 	var ok bool
-	fmt.Println(q)
+
 	if chr, ok = q["chr"]; !ok {
 		return errors.New("chr is required input parameter")
 	}
@@ -114,18 +150,18 @@ func processLociQuery(w http.ResponseWriter,
 		return errors.New("start required input parameter")
 	}
 
-	if stop, ok = q["stop"]; !ok {
-		return errors.New("start required input parameter")
+	if end, ok = q["end"]; !ok {
+		return errors.New("end required input parameter")
 	}
 
 	var err error
-	var startPos int
-	if startPos, err = strconv.Atoi(start[0]); err != nil {
+	var startPos uint64
+	if startPos, err = strconv.ParseUint(start[0], 10, 64); err != nil {
 		return err
 	}
 
-	var stopPos int
-	if stopPos, err = strconv.Atoi(stop[0]); err != nil {
+	var endPos uint64
+	if endPos, err = strconv.ParseUint(end[0], 10, 64); err != nil {
 		return err
 	}
 
@@ -133,8 +169,8 @@ func processLociQuery(w http.ResponseWriter,
 		schema[0],
 		table[0],
 		chr[0],
-		uint(startPos),
-		uint(stopPos))
+		startPos,
+		endPos)
 
 	if err != nil {
 		return err
@@ -155,7 +191,7 @@ func processLociQuery(w http.ResponseWriter,
 	return nil
 }
 
-func processInitializeAssocPlotQuery(w http.ResponseWriter,
+func processInitPositionsQuery(w http.ResponseWriter,
 	r *http.Request,
 	db *service.OrgDb) error {
 
@@ -163,6 +199,7 @@ func processInitializeAssocPlotQuery(w http.ResponseWriter,
 	var chr []string
 	var schema []string
 	var table []string
+	var halfRegionSizeStr []string
 	var ok bool
 
 	if chr, ok = q["chr"]; !ok {
@@ -177,7 +214,11 @@ func processInitializeAssocPlotQuery(w http.ResponseWriter,
 		return errors.New("phenotype required input parameter")
 	}
 
-	out, err := service.GetGwasAllLociRecords(db,
+	if halfRegionSizeStr, ok = q["halfRegionSize"]; !ok {
+		return errors.New("halfRegionSize wasn't specified")
+	}
+
+	out, err := service.GetLocusAtMaxAssoc(db,
 		schema[0],
 		table[0],
 		chr[0])
@@ -185,40 +226,19 @@ func processInitializeAssocPlotQuery(w http.ResponseWriter,
 		return err
 	}
 
-	lociStart := new(service.GwasLocusRecord)
-	lociStop := new(service.GwasLocusRecord)
-	var delta uint
-	var deltaMax uint
-
-	lociStart = &out[0]
-	var i int
-	for i = 1; i < len(out); i++ {
-		// need this because working with unsigned ints
-		if out[i].Pos < lociStart.Pos {
-			lociStart = &(out[i])
-			continue
-		}
-		delta = out[i].Pos - lociStart.Pos
-		if delta > assocPlotMaxRange {
-			lociStop = &(out[i])
-			break
-		}
-
-		if deltaMax < delta {
-			lociStop = &(out[i])
-			deltaMax = delta
-		}
+	var output [2]uint64
+	var halfRegionSize uint64
+	halfRegionSize, err = strconv.ParseUint(halfRegionSizeStr[0], 10, 64)
+	if err != nil {
+		return err
 	}
-
-	var output [2]uint
-
-	if lociStop.Pos > lociStart.Pos {
-		output[0] = lociStart.Pos
-		output[1] = lociStop.Pos
+	if halfRegionSize > out {
+		output[0] = uint64(0)
 	} else {
-		output[0] = lociStop.Pos
-		output[1] = lociStart.Pos
+		output[0] = out - halfRegionSize
 	}
+
+	output[1] = out + halfRegionSize
 
 	var output_json []byte
 	output_json, err = json.Marshal(output)
@@ -251,14 +271,16 @@ func GwasApiHandlerFunc(app *application.Application) func(http.ResponseWriter, 
 		var f func(http.ResponseWriter, *http.Request, *service.OrgDb) error
 
 		switch filepath.Base(r.URL.Path) {
-		case "phenos":
+		case "phenotypes":
 			f = processPhenoQuery
 		case "chr":
 			f = processChrQuery
-		case "assoc":
-			f = processInitializeAssocPlotQuery
+		case "initPos":
+			f = processInitPositionsQuery
 		case "loci":
 			f = processLociQuery
+		case "gene":
+			f = processGeneQuery
 		default:
 			err = errors.New("unsupported request")
 			app.Log.PrintError(err)
@@ -270,3 +292,46 @@ func GwasApiHandlerFunc(app *application.Application) func(http.ResponseWriter, 
 		}
 	}
 }
+
+// 	out, err := service.GetGwasAllLociRecords(db,
+// 		schema[0],
+// 		table[0],
+// 		chr[0])
+// 	if err != nil {
+// 		return err
+// 	}
+//
+// 	lociStart := new(service.GwasLocusRecord)
+// 	lociStop := new(service.GwasLocusRecord)
+// 	var delta uint
+// 	var deltaMax uint
+//
+// 	lociStart = &out[0]
+// 	var i int
+// 	for i = 1; i < len(out); i++ {
+// 		// need this because working with unsigned ints
+// 		if out[i].Pos < lociStart.Pos {
+// 			lociStart = &(out[i])
+// 			continue
+// 		}
+// 		delta = out[i].Pos - lociStart.Pos
+// 		if delta > assocPlotMaxRange {
+// 			lociStop = &(out[i])
+// 			break
+// 		}
+//
+// 		if deltaMax < delta {
+// 			lociStop = &(out[i])
+// 			deltaMax = delta
+// 		}
+// 	}
+//
+// 	var output [2]uint
+//
+// 	if lociStop.Pos > lociStart.Pos {
+// 		output[0] = lociStart.Pos
+// 		output[1] = lociStop.Pos
+// 	} else {
+// 		output[0] = lociStop.Pos
+// 		output[1] = lociStart.Pos
+// 	}
