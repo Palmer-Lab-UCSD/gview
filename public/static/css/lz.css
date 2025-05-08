@@ -1,0 +1,15 @@
+
+/* 
+The locuszoom.js tool has an associated css file that defines
+all styles of locuszoom elements.  I am using the locuszooms.js's
+`svg.lz-locuszoom rect.lz-data_layer-genes.lz-exon` style settings
+for my lz-gene object, below.  The code was taken from the
+locuszoom.js github 
+
+*/
+svg.lz-locuszoom rect.lz-data_layer-genes.lz-gene {
+    stroke: #363696;
+    stroke-opacity: 1;
+    stroke-width: 1px;
+    fill: #000099; 
+}

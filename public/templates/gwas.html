@@ -8,9 +8,9 @@
 <script type="text/javascript"
     src="https://cdn.jsdelivr.net/npm/locuszoom@0.14.0/dist/locuszoom.app.min.js"></script>
 <script type="text/javascript"
-    src="/public/static/js/gene_interval.js"></script>
-<script type="text/javascript"
       src="/public/static/js/gwas.js"></script>
+<script type="text/javascript"
+    src="/public/static/js/genes.js"></script>
 <script type="text/javascript"
       src="/public/static/js/locuszoom_gwas.js"></script>
 <link rel="stylesheet"
@@ -19,7 +19,10 @@
 <link rel="stylesheet" 
       type="text/css"
       href="https://cdn.jsdelivr.net/npm/locuszoom@0.14.0/dist/locuszoom.css"/>
-<title>Locus Zoom</title>
+<link rel="stylesheet"
+      type="text/css"
+      href="/public/static/css/lz.css">
+<title>GWAS</title>
 </head>
 <header style="height:5em;position:sticky;top:0;z-index:1;background:white">
     <a href="/">
@@ -66,7 +69,7 @@
 
 <script type="text/javascript">
     let plotListener = null
-    let plot = null
+    let plots = []
 
     let queryElements = new Map();
     queryElements.set("projectId", document.getElementById("projectId"));

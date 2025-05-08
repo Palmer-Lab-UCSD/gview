@@ -261,9 +261,9 @@ class LzIntervalsTrack extends LocusZoom.DataLayers.get("BaseDataLayer") {
                 .attr('y', (d) => (d * height))
                 .attr('width', this.parent.layout.cliparea.width)
                 .attr('height', Math.max(height - this.layout.track_vertical_spacing, 1));
+            status_nodes.exit()
+                .remove();
         }
-        status_nodes.exit()
-            .remove();
         // Draw rectangles for the data (intervals)
         const data_nodes = this._datanodes_group.selectAll('rect')
             .data(track_data, (d) => d[this.layout.id_field]);
@@ -271,7 +271,7 @@ class LzIntervalsTrack extends LocusZoom.DataLayers.get("BaseDataLayer") {
             .append('rect')
             .merge(data_nodes)
             .attr('id', (d) => this.getElementId(d))
-            .attr('x', (d) => d[XCS])
+            .attr('x', (d) => {console.log(d);return d[XCS];})
             .attr('y', (d) => d[YCS])
             .attr('width', (d) => Math.max(d[XCE] - d[XCS], 1))
             .attr('height', this.layout.track_height)
@@ -307,12 +307,7 @@ class LzIntervalsTrack extends LocusZoom.DataLayers.get("BaseDataLayer") {
         return this;
     }
 
-    getNamespacePrefix() {
-        // Extract the namespace key from the namespace object
-        const namespace = this.layout.namespace || {};
-        return Object.keys(namespace)[0] || 'intervals';
-    }
-    // Redraw split track axis or hide it, and show/hide the legend, as determined
+   // Redraw split track axis or hide it, and show/hide the legend, as determined
     // by current layout parameters and data
     updateSplitTrackAxis(categories) {
         const legend_axis = this.layout.track_split_legend_to_y_axis ? `y${this.layout.track_split_legend_to_y_axis}` : false;

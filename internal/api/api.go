@@ -11,6 +11,43 @@ import (
 	"github.com/palmer-lab-ucsd/gview/internal/service"
 )
 
+func processChrWideSubset(w http.ResponseWriter,
+	r *http.Request,
+	db *service.OrgDb) error {
+
+	w.Header().Add("Content-Type", "application/json")
+
+	var err error
+	var output []service.GwasChrWideViewRecord
+
+	output, err = service.GetChrWideSubset(db,
+		r.URL.Query()["projectId"][0],
+		r.URL.Query()["phenotype"][0],
+		r.URL.Query()["chr"][0])
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		output_json, _ := json.Marshal(make([]service.GwasChrWideViewRecord, 0))
+		_, _ = w.Write(output_json)
+		return err
+	}
+
+	output_json, err := json.Marshal(output)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		output_json, err = json.Marshal(make([]service.GwasChrWideViewRecord, 0))
+		_, _ = w.Write(output_json)
+		return err
+	}
+
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(output_json)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func processGeneQuery(w http.ResponseWriter,
 	r *http.Request,
 	db *service.OrgDb) error {
@@ -256,6 +293,48 @@ func processInitPositionsQuery(w http.ResponseWriter,
 	return nil
 }
 
+func processChrStatsQuery(w http.ResponseWriter,
+	r *http.Request,
+	db *service.OrgDb) error {
+	// temporary solution until i get chrom data table configured
+
+	var schema []string
+	var table []string
+	var chr []string
+	var ok bool
+
+	q := r.URL.Query()
+
+	if schema, ok = q["projectId"]; !ok {
+		return errors.New("project id not defined")
+	}
+
+	if table, ok = q["phenotype"]; !ok {
+		return errors.New("phenotype id not defined")
+	}
+
+	if chr, ok = q["chr"]; !ok {
+		return errors.New("chr not defined")
+	}
+
+	chrStats, err := service.GetChrStats(schema[0], table[0], chr[0], db)
+	if err != nil {
+		return err
+	}
+
+	output_json, err := json.Marshal(chrStats)
+	if err != nil {
+		return err
+	}
+
+	_, err = w.Write(output_json)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func GwasApiHandlerFunc(app *application.Application) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		app.Log.PrintHttpRequest(r)
@@ -281,6 +360,10 @@ func GwasApiHandlerFunc(app *application.Application) func(http.ResponseWriter, 
 			f = processLociQuery
 		case "gene":
 			f = processGeneQuery
+		case "chrOverview":
+			f = processChrWideSubset
+		case "chrStats":
+			f = processChrStatsQuery
 		default:
 			err = errors.New("unsupported request")
 			app.Log.PrintError(err)

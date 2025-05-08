@@ -38,6 +38,18 @@ type GwasLocusRecord struct {
 	NegLogPval float64
 }
 
+type GwasChrWideViewRecord struct {
+	Chr        string
+	Pos        uint64
+	NegLogPval float32
+}
+
+type ChrStats struct {
+	Length uint64
+	Start  uint64
+	End    uint64
+}
+
 // OrgDb is an alias of sql.DB.  I wanted to include this to
 // reinforce the idea that the interactions with the database
 // assume the specific database architecture
