@@ -61,39 +61,7 @@
     </div>
 </body>
 
-<script type="module" src="/public/js/gwas.js">
-
-    console.log(LocusZoom)
-    console.log(PlabGenes)
-    LocusZoom.DataLayers.add("plab_genes", PlabGenes)
-    let plotListener = null
-    let plots = []
-
-    let queryElements = new Map();
-    queryElements.set("projectId", document.getElementById("projectId"));
-    queryElements.set("phenotype", document.getElementById("phenotype"));
-    queryElements.set("chr", document.getElementById("chr"));
-
-    // TODO: How do I reset all options under page refresh
-    queryElements.get("projectId").eventProcessor = queryDataSourcesFromSelectors("/api/gwas/phenotypes",
-        [],
-        "projectId",
-        ["phenotype", "chr"]);
-    queryElements.get("phenotype").eventProcessor = queryDataSourcesFromSelectors("/api/gwas/chr",
-        ["projectId"],
-        "phenotype",
-        ["chr"]);
-
-    queryElements.get("chr").eventProcessor = initializeGwasPlots("projectId",
-        "phenotype",
-        "chr",
-        {
-            chrOverview: "lzChrOverview",
-            locusOfInterest: "lzLocusOfInterest"
-        });
-
-    createListeners(queryElements)
-</script>
+<script type="module" src="/public/static/js/gwas_init.js"></script>
 
 
 </html>

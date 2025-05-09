@@ -4,6 +4,7 @@
 import * as PlabApiAdapters from "./adapters.js";
 import * as PlabPanels from "./panels.js";
 import * as PlabLayouts from "./layouts.js"
+import { uiState } from "./uiState.js"
 
 
 const URLS = {
@@ -66,7 +67,7 @@ async function makeChrPlot(options, chrStats, htmlIdForPlot) {
         ]
     );
 
-    plots.push(LocusZoom.populate(`#${htmlIdForPlot}`,
+    uiState.plots.push(LocusZoom.populate(`#${htmlIdForPlot}`,
         data_sources,
         layout));
 }
@@ -110,7 +111,7 @@ async function makeLocusPlot(state, sigVal, htmlIdForPlot) {
         ]
     );
 
-    plots.push(LocusZoom.populate(`#${htmlIdForPlot}`,
+    uiState.plots.push(LocusZoom.populate(`#${htmlIdForPlot}`,
         data_sources,
         layout));
 

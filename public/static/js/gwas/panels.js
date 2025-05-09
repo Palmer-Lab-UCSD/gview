@@ -3,12 +3,7 @@
  * Palmer Lab at UCSD
  * 2025
  */
-import { 
-    data_layer_association_pvalues,
-    data_layer_chr_overview,
-    data_layer_gene,
-    data_layer_significance
-} from "./lz_data_layers";
+import * as PlabDataLayers from "./data_layers.js";
 
 
 const HEIGHT_GENE_ANNOTATION = 300
@@ -36,7 +31,7 @@ function genes(namespace) {
             scroll_to_zoom: true
         },
         data_layers : [
-            data_layer_gene(namespace)
+            PlabDataLayers.gene(namespace)
         ]
     }
 }
@@ -104,10 +99,10 @@ function locusAssoc(dataNamespace,
     };
 
     panel_struct.data_layers.push(
-        data_layer_association_pvalues(dataNamespace, xfield, yfield)
+        PlabDataLayers.association_pvalues(dataNamespace, xfield, yfield)
     );
     panel_struct.data_layers.push(
-        data_layer_significance(sigVal)
+        PlabDataLayers.significance(sigVal)
     );
 
     return panel_struct;
@@ -126,7 +121,7 @@ function chrAssoc(dataNamespace, chr, xfield, yfield) {
     let panel_struct = assocBase(chr);
     panel_struct.id = "chrOverview";
     panel_struct.data_layers.push(
-            data_layer_chr_overview(dataNamespace, xfield, yfield)
+            PlabDataLayers.chr_overview(dataNamespace, xfield, yfield)
     ); 
     return panel_struct;
 }
