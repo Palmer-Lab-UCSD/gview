@@ -1,68 +1,64 @@
+/** Manage data source queries from selectors
+ * 
+ * 2025, Palmer Lab at UCSD
+ * 
+ */
 
 
+/** Reset HTML selector options
+ * 
+ * @param {String} selectId is the HTML tag id where options
+ * will be reset to a single default value.
+ */
 function resetSelectorOptions(selectId) {
     tmp = document.getElementById(selectId);
     n = tmp.childNodes.length;
-    to_remove = [];
+    toRemove = [];
     for (i = 0; i < n; i++) {
-        if (tmp.childNodes[i].nodeName != "OPTION") {
+        if (tmp.childNodes[i].nodeName !== "OPTION") {
             continue;
         }
         if (tmp.childNodes[i].id === "") {
             continue;
         }
-        to_remove.push(tmp.childNodes[i]);
+        toRemove.push(tmp.childNodes[i]);
     }
-
-    n = to_remove.length;
+    n = toRemove.length;
     for (i=0; i < n; i++)
-        tmp.removeChild(to_remove[i]);
+        tmp.removeChild(toRemove[i]);
 }
 
-function getPhenotypeFromQuery(url, htmlIdForProjectId) {
+
+/** Return closure for selector event processing
+ * 
+ * @param {String} url for fetch request
+ * @param {Array} ancestorsHtmlIds, 
+ * @param {String} thisHtmlId is that with which the options will be updated
+ * @param {Array} descendentsHtmlId are those that require thisHtmlId and
+ * ancestorsHtmlIds for specificication
+ * @returns {function} closure for performing request
+ */
+function queryDataSourcesFromSelectors(url,
+    ancestorsHtmlIds,
+    thisHtmlId,
+    descendentsHtmlIds) {
 
     return function g(queryElements) {
         const options = new URLSearchParams();
 
-        options.append(htmlIdForProjectId,
-            queryElements.get(htmlIdForProjectId).value);
-
-        resetSelectorOptions("chr") 
-        resetSelectorOptions("phenotype")
-
-        fetch(`${url}?${options}`)
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error("HTTP request error");
-                }
-                return response.json()
-            })
-            .then((text) => {
-                if (text.length == 0) {
-                    return
-                }
-
-                for (i = 0; i < text.length; i++) {
-                    tmp = document.createElement("option")
-                    tmp.setAttribute("id", text[i])
-                    tmp.text = text[i]
-                    queryElements.get("phenotype").appendChild(tmp)
-                }
-            })
-    }
-}
-
-function getChrFromQuery(url, htmlIdForProjectId, htmlIdForPhenotype) {
-
-    return function g(queryElements) {
-        const options = new URLSearchParams();
-
+        for (i=0; i < ancestorsHtmlIds.length; i++) {
+            options.append(ancestorsHtmlIds[i],
+                queryElements.get(ancestorsHtmlIds[i]).value);
+        }
         options.append(htmlIdForProjectId,
             queryElements.get(htmlIdForProjectId).value);
         options.append(htmlIdForPhenotype,
             queryElements.get(htmlIdForPhenotype).value);
 
-        resetSelectorOptions("chr");
+        resetSelectorOptions(thisHtmlId);
+        for (i = 0; i < descendentsHtmlIds.length; i++) {
+            resetSelectorOptions(descendentsHtmlIds[i])
+        }
 
         fetch(`${url}?${options}`)
             .then((response) => {
@@ -83,6 +79,7 @@ function getChrFromQuery(url, htmlIdForProjectId, htmlIdForPhenotype) {
     }
 }
 
+
 function createListeners(queryElements) {
 
     values = new Map();
@@ -96,4 +93,9 @@ function createListeners(queryElements) {
             event.target.eventProcessor(queryElements)
         });
     }
+}
+
+export {
+    queryDataSourcesFromSelectors,
+    createListeners
 }

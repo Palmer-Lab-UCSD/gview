@@ -363,4 +363,4 @@ class PlabGenes extends LocusZoom.DataLayers.get("BaseDataLayer") {
 }
 
 
-LocusZoom.DataLayers.add("plab_genes", PlabGenes)
+export { PlabGenes };
