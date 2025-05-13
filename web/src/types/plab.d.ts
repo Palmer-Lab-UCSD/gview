@@ -1,12 +1,22 @@
 
-declare class ApiRequestOptionsPlots extends URLSearchParams {
-    build:              string;
+declare interface ApiRequestOptionsPlots extends URLSearchParams {
     projectId:          string;
     phenotype:          string;
     chr:                string;
-    halfRegionSize?:    string;
-    start?:             number;
-    end?:               number;
+    build?:             string;
+}
+
+declare interface ApiRequestAssoc extends ApiRequestOptionsPlots {
+    start:             number;
+    end:               number;
+}
+
+declare interface ApiRequestChr extends ApiRequestOptionsPlots {}
+
+declare interface ApiRequestGene {
+    chr:        string;
+    start:      number;
+    end:        number;
 }
 
 declare interface ChrInfoPlots {

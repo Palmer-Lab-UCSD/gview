@@ -8,39 +8,48 @@
  * 2025, Palmber Lab at UCSD
  */
 
+import * as Validate from "../types/validate.js"
+
 class ChrSubsetAdapter extends LocusZoom.Adapters.get("BaseLZAdapter") {
-    _getURL (request_options) {
+    _getURL (request_options: ApiRequestChr) {
+
+        if (!Validate.isApiRequestChr(request_options))
+            throw new Error("request options do not meet required structure");
+
         const options = new URLSearchParams();
-        options.append('projectId', request_options.projectId)
-        options.append('phenotype', request_options.phenotype)
-        options.append('chr', request_options.chr)
+        options.append("projectId", request_options.projectId);
+        options.append("phenotype", request_options.phenotype);
+        options.append("chr", request_options.chr);
 
         return `${this._url}?${options}`
     }
 
-    _normalizeResponse(response_text, _) {
+    _normalizeResponse(response_text: string, _: ApiRequestChr) {
         //let data = super._normalizeResponse(response_text, options);
         //data = data.data || data;
-        tmp = JSON.parse(response_text);
-        return tmp;
+        return JSON.parse(response_text);
     }
 }
 
 class AssocAdapter extends LocusZoom.Adapters.get("BaseLZAdapter") {
-    _getURL (request_options) {
-        const options = new URLSearchParams();
+    _getURL (request_options: ApiRequestAssoc) {
         // TODO fix genome build
         // options.append('build', BUILD)
+        if (!Validate.isApiRequestAssoc(request_options)) 
+            throw new Error("not does not have type ApiRequestOptionsPlot")
+
+        const options = new URLSearchParams();
+
         options.append('projectId', request_options.projectId)
         options.append('phenotype', request_options.phenotype)
         options.append('chr', request_options.chr)
-        options.append('start', request_options.start)
-        options.append('end', request_options.end)
+        options.append('start', request_options.start.toString())
+        options.append('end', request_options.end.toString())
 
         return `${this._url}?${options}`
     }
 
-    _normalizeResponse(response_text, _) {
+    _normalizeResponse(response_text: string, _: ApiRequestAssoc) {
         //let data = super._normalizeResponse(response_text, options);
         //data = data.data || data;
         return JSON.parse(response_text);
@@ -49,17 +58,20 @@ class AssocAdapter extends LocusZoom.Adapters.get("BaseLZAdapter") {
 
 
 class GeneAdapter extends LocusZoom.Adapters.get("BaseLZAdapter") {
-    _getURL (request_options) {
+    _getURL(request_options: ApiRequestGene): string {
+        if (!Validate.isApiRequestGene(request_options))
+            throw new Error("Not correct type");
+
         const options = new URLSearchParams();
         // TODO fix genome build
         options.append('chr', request_options.chr)
-        options.append('start', request_options.start)
-        options.append('end', request_options.end)
+        options.append('start', request_options.start.toString())
+        options.append('end', request_options.end.toString())
 
         return `${this._url}?${options}`
     }
 
-    _normalizeResponse(response_text, options) {
+    _normalizeResponse(response_text: string, _: ApiRequestGene) {
         return JSON.parse(response_text)
     }
 }

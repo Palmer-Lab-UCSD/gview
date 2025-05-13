@@ -46,7 +46,7 @@ const SIG_VAL: number = 5;
  */
 async function makeChrPlot(options: ApiRequestOptionsPlots,
     chrInfo: ChrInfoPlots,
-    htmlIdForPlot: string): void {
+    htmlIdForPlot: string): Promise<void> {
 
     const dataNamespace = "assocOverview";
 

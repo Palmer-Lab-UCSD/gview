@@ -30,7 +30,7 @@ function locusAssoc(state, panels) {
 }
 
 
-function chrAssoc(state, panels) {
+function chrAssoc(state: ApiRequestAssoc, panels: Array<>) {
     return {
         height: HEIGHT_CHR_OVERVIEW,
         width: WIDTH,
