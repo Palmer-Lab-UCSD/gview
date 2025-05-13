@@ -1,5 +1,6 @@
 *.DS_Store
 *.key
+to_translate/
 pkg/
 db/
 main

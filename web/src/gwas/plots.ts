@@ -1,10 +1,11 @@
 /**
- * 
+ * 2025, Palmer Lab at UCSD
  */
 import * as PlabApiAdapters from "./adapters.js";
 import * as PlabPanels from "./panels.js";
 import * as PlabLayouts from "./layouts.js"
 import { uiState } from "./uiState.js"
+import { QueryElements } from "./services.js";
 
 
 const URLS = {
@@ -16,11 +17,10 @@ const URLS = {
 };
 
 
-
 // TODO Add real statistical significance value instead of setting sigVal
-const BUILD = 'mRatBN7.2';
-const HALF_REGION_SIZE = 500000;
-const SIG_VAL = 5;
+const BUILD: string = 'mRatBN7.2';
+const HALF_REGION_SIZE: number = 500000;
+const SIG_VAL: number = 5;
 
 
 /** 
@@ -35,7 +35,7 @@ const SIG_VAL = 5;
  *  - {String} projectId
  *  - {String} phenotype
  *  - {String} chr
- * @param {Object} chrStats, contains, at a minimum, the following chromosome
+ * @param {Object} chrInfo, contains, at a minimum, the following chromosome
  * specific information:
  *  - {int} Start, smallest position, in units of base pairs, in which there
  *      is an association statistic
@@ -44,7 +44,9 @@ const SIG_VAL = 5;
  *  - {int} Length, Start - End
  * @param {String} htmlIdForPlot
  */
-async function makeChrPlot(options, chrStats, htmlIdForPlot) {
+async function makeChrPlot(options: ApiRequestOptionsPlots,
+    chrInfo: ChrInfoPlots,
+    htmlIdForPlot: string): void {
 
     const dataNamespace = "assocOverview";
 
@@ -59,8 +61,8 @@ async function makeChrPlot(options, chrStats, htmlIdForPlot) {
             projectId: options.get("projectId"),
             phenotype: options.get("phenotype"),
             chr: options.get("chr"),
-            start: chrStats.Start,
-            end: chrStats.End
+            start: chrInfo.Start,
+            end: chrInfo.End
         },[
             PlabPanels.chrAssoc(dataNamespace,
                 options.get("chr"), "Pos", "NegLogPval")
@@ -81,7 +83,7 @@ async function makeChrPlot(options, chrStats, htmlIdForPlot) {
  * researcher.
  * 
  *  @param {string} url to api service
- *  @param {Map} state as defined by locuszoom.js, required fields:
+ *  @param {ScatterPlotState} state as defined by locuszoom.js, required fields:
  *      - build: String (mRatBN7.2)
  *      - projectId: String 
  *      - phenotype: String 
@@ -90,9 +92,11 @@ async function makeChrPlot(options, chrStats, htmlIdForPlot) {
  *      - end: positive int
  *  @param {string} id of html tag in which the figure is placed.
 */
-async function makeLocusPlot(state, sigVal, htmlIdForPlot) {
+async function makeLocusPlot(state: ApiRequestOptionsPlots,
+    sigVal: number,
+    htmlIdForPlot: string): Promise<void> {
 
-    const assocAdapter = new PlabApiAdapters.AssocAdapter({
+    const assocAdapter = new AssocAdapter({
         url: URLS.GET_ASSOC_DATA
     });
 
@@ -123,7 +127,7 @@ async function makeLocusPlot(state, sigVal, htmlIdForPlot) {
 }
 
 
-async function getInitPositions(options) {
+async function getInitPositions(options: ApiRequestOptionsPlots): Promise<Array<number>> {
     const response = await fetch(`${URLS.GET_INIT_POS}?${options}`);
     if (!response.ok) {
         throw new Error("Couldn't get initial position")
@@ -132,8 +136,8 @@ async function getInitPositions(options) {
     return response.json();
 }
 
-async function getChrStats(options) {
-    const response = await fetch(`${URLS.GET_CHROM_POS}?${options}`);
+async function getChrInfo(options: ApiRequestOptionsPlots): Promise<ChrInfoPlots> {
+    const response: Response = await fetch(`${URLS.GET_CHROM_POS}?${options}`);
 
     if (!response.ok) {
         throw new Error("Couldn't get chromosome position")
@@ -142,40 +146,46 @@ async function getChrStats(options) {
     return response.json();
 }
 
-function initAll(htmlIdForProjectId,
-        htmlIdForPhenotype,
-        htmlIdForChr,
-        htmlIdsForPlots) {
+function initAll(htmlIdForProjectId: string,
+        htmlIdForPhenotype: string,
+        htmlIdForChr: string,
+        htmlIdsForPlots: { chrOverview: string, locusOfInterest: string}): (queryElements: QueryElements) => Promise<void> {
 
-    return async function g(queryElements) {
+    return async function g(queryElements: QueryElements): Promise<void> {
 
-        const options = new URLSearchParams();
+        const options = new ApiRequestOptionsPlots();
         options.append("build", BUILD)
-        options.append("projectId",
-            queryElements.get(htmlIdForProjectId).value);
-        options.append("phenotype",
-            queryElements.get(htmlIdForPhenotype).value);
-        options.append("chr",
-            queryElements.get(htmlIdForChr).value);
-        options.append("halfRegionSize", HALF_REGION_SIZE) // 0.5 Mb
+
+        let tmp = queryElements.get(htmlIdForProjectId) as DataHtmlSelectElement | undefined;
+
+        if (tmp === undefined)
+            throw new Error("no projectId")
+        options.append("projectId", tmp.value);
+
+        tmp = queryElements.get(htmlIdForPhenotype);
+        if (tmp === undefined) 
+            throw new Error("no phenotype");
+        options.append("phenotype",tmp.value);
+
+        tmp = queryElements.get(htmlIdForChr);
+        if (tmp === undefined) 
+            throw new Error("no chr");
+        options.append("chr", tmp.value);
+
+        options.append("halfRegionSize", HALF_REGION_SIZE.toString());
 
         // Construct overview plot
-        const chrStats = await getChrStats(options);
-        console.log(chrStats)
+        const chrStats: ChrInfoPlots = await getChrInfo(options);
         makeChrPlot(options, chrStats, htmlIdsForPlots.chrOverview);
 
 
         // Construct fine-scale plot
-        const posits = await getInitPositions(options)
-
-        options.append('start', posits[0]);
-        options.append('end', posits[1]);
-
-        let state = {};
-        options.entries().forEach((w) => {state[w[0]] = w[1]});
+        const output: Array<number> = await getInitPositions(options)
+        options.append('start', output[0].toString());
+        options.append('end', output[1].toString());
 
         // TODO need to query sigVal from database
-        makeLocusPlot(state, SIG_VAL, htmlIdsForPlots.locusOfInterest);
+        makeLocusPlot(options, SIG_VAL, htmlIdsForPlots.locusOfInterest);
     }
 }
 

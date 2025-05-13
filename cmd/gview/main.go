@@ -37,9 +37,17 @@ func main() {
 	mux.HandleFunc("/hwas", api.HwasHandlerFunc(app))
 	mux.HandleFunc("/api/gwas/", api.GwasApiHandlerFunc(app))
 
-	mux.Handle("/public/static/",
-		http.StripPrefix("/public/static",
-			http.FileServer(http.Dir(filepath.Join(cfg.RootDir, "public/static")))))
+	mux.Handle("/public/js/",
+		http.StripPrefix("/public/js",
+			http.FileServer(http.Dir(filepath.Join(cfg.RootDir, "public/js")))))
+
+	mux.Handle("/public/css/",
+		http.StripPrefix("/public/css",
+			http.FileServer(http.Dir(filepath.Join(cfg.RootDir, "public/css")))))
+
+	mux.Handle("/public/assets/",
+		http.StripPrefix("/public/assets",
+			http.FileServer(http.Dir(filepath.Join(cfg.RootDir, "public/assets")))))
 
 	app.Log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", cfg.HostName, cfg.Port),
 		mux))

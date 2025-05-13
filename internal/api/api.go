@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -93,10 +94,20 @@ func processPhenoQuery(w http.ResponseWriter,
 	r *http.Request,
 	db *service.OrgDb) error {
 
+	fmt.Println(r.URL.Path)
+	fmt.Println(r.URL.Query())
+
 	var err error
 	var output []string
+	var tmp []string
+	var ok bool
 
-	projId := r.URL.Query()["projectId"][0]
+	query := r.URL.Query()
+
+	if tmp, ok = query["projectId"]; !ok {
+		return errors.New("project Id wasn't specified in request")
+	}
+	projId := tmp[0]
 	output, err = service.GetPhenotypes(db, projId)
 
 	w.Header().Add("Content-Type", "application/json")
@@ -317,6 +328,7 @@ func processChrStatsQuery(w http.ResponseWriter,
 		return errors.New("chr not defined")
 	}
 
+	fmt.Println(schema, table, chr)
 	chrStats, err := service.GetChrStats(schema[0], table[0], chr[0], db)
 	if err != nil {
 		return err

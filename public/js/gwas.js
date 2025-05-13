@@ -1,4 +1,4 @@
-
+/**
 export {
     makeChrPlot,
     makeLocusPlot,
@@ -13,3 +13,5 @@ export {
 export { PlabGenes } from "./gwas/genes.js";
 
 export { uiState } from "./gwas/uiState.js"
+*/
+export { queryDataSourcesFromSelectors, createListeners, } from "./gwas/services.js";
