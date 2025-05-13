@@ -6,15 +6,15 @@
 import * as PlabDataLayers from "./data_layers.js";
 
 
-const HEIGHT_GENE_ANNOTATION = 300
-const MIN_HEIGHT_GENE_ANNOTATION = 150
-const HEIGHT_ASSOC = 300
-const MARGIN = { top: 35, right: 55, bottom: 40, left: 70 }
+const HEIGHT_GENE_ANNOTATION: number = 300;
+const MIN_HEIGHT_GENE_ANNOTATION: number = 150;
+const HEIGHT_ASSOC: number = 300;
+const MARGIN = { top: 35, right: 55, bottom: 40, left: 70 };
 
 
 /** Construct panel for gene tracks and annotations
  * 
- * @param {String} namespace is the name assigned to the data
+ * @param {string} namespace is the name assigned to the data
  *      resource for which this panel is updated.
  * @returns {Object} an object that defines a panel consistent
  *      with the requirements of locuszoom.js

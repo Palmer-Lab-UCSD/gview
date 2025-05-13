@@ -1,36 +1,37 @@
 
 declare namespace LocusZoom {
-    class BaseAdapter {};
-    class RegistryBase {
-        get(name: string): typeof BaseLZAdapter;
-    };
 
-    class ClassRegistry extends RegistryBase {};
-
-
-    class BaseLZAdapter {
-        constructor(config: object)
+    class Adapter {
         _url: string
         _getURL(request_options: any): string
         _normalizeResponse(response_text: string,
             options: any): JSON
-    };
+    }
 
     class DataSources {
-        constructor(registry?: RegistryBase);
+        constructor(registry?: Registry);
         add(namesapce: string,
-            adapter: BaseLZAdapter,
+            adapter: Adapter,
             override?: boolean): DataSources;
-    };
-    class Adapters extends ClassRegistry {};
+    }
 
-    function populate(selector: string, datasource: DataSources, layout: object): Plot
-    type Panel = {
+    interface Registry {
+        get(name: string): typeof Adapter
+    }
+
+
+    interface Panel {
         id:             null | string;
         height:         null | number;
         data_layers:    Array<number>;
-    };
-    interface Plot {};
+    }
+
+    interface Plot {}
+
+    export const Adapters: Registry;
+    export function populate(selector: string,
+        datasource: DataSources,
+        layout: object): Plot
 }
 
 declare type config = {

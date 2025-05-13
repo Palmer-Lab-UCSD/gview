@@ -10,7 +10,9 @@
 
 import * as Validate from "../types/validate.js"
 
+
 class ChrSubsetAdapter extends LocusZoom.Adapters.get("BaseLZAdapter") {
+
     _getURL (request_options: ApiRequestChr) {
 
         if (!Validate.isApiRequestChr(request_options))

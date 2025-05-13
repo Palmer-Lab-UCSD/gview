@@ -1,3 +1,9 @@
+/**
+ * Interface definitions for ApiRequests and runtime validation functions
+ * 
+ * 2025, Palmer Lab at UCSD
+ */
+
 
 function isApiRequestOptionsPlot(obj: any): boolean {
     // required elements
