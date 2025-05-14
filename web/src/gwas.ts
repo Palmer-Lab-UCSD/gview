@@ -13,7 +13,8 @@ import * as PlabGwas from "./gwas/services.js";
 import * as PlabPlots from "./gwas/plots.js";
 
 
-let queryElements = new QueryElements();
+
+let queryElements = new PlabGwas.QueryElements();
 
 queryElements.set("projectId",
     document.getElementById("projectId") as DataHtmlSelectElement);

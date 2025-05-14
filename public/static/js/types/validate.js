@@ -1,30 +1,23 @@
 /**
  * Interface definitions for ApiRequests and runtime validation functions
- * 
+ *
  * 2025, Palmer Lab at UCSD
  */
-
-
-function isApiRequestOptionsPlot(obj: any): boolean {
+function isApiRequestOptionsPlot(obj) {
     // required elements
-    const out: boolean = obj !== undefined
+    const out = obj !== undefined
         && obj !== null
         && typeof obj === "object"
         && typeof obj.projectId === "string"
         && typeof obj.phenotype === "string"
         && typeof obj.chr === "string";
-
     if (!out)
         return false;
-
     if ("build" in obj && typeof obj.build !== "string")
         return false;
-
     return true;
 }
-
-function isApiRequestAssoc(obj: any): obj is ApiRequestAssoc {
-
+function isApiRequestAssoc(obj) {
     if (!isApiRequestOptionsPlot(obj)) {
         return false;
     }
@@ -32,21 +25,14 @@ function isApiRequestAssoc(obj: any): obj is ApiRequestAssoc {
         && typeof obj.start === "number"
         && typeof obj.end === "number";
 }
-
-function isApiRequestChr(obj: any): obj is ApiRequestChr {
-    return isApiRequestOptionsPlot(obj)
+function isApiRequestChr(obj) {
+    return isApiRequestOptionsPlot(obj);
 }
-
-function isApiRequestGene(obj: any): obj is ApiRequestGene {
+function isApiRequestGene(obj) {
     return obj !== undefined
-        && obj !== null 
+        && obj !== null
         && typeof obj.chr === "string"
         && typeof obj.start === "number"
         && typeof obj.end === "number";
 }
-
-export {
-    isApiRequestAssoc,
-    isApiRequestChr,
-    isApiRequestGene
-}
+export { isApiRequestAssoc, isApiRequestChr, isApiRequestGene };

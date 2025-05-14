@@ -4,6 +4,8 @@
  * 
  */
 
+class QueryElements extends Map<string, DataHtmlSelectElement> {};
+
 /** Reset HTML selector options
  * 
  * @param {String} selectId is the HTML tag id where options
@@ -129,6 +131,7 @@ function createListeners(queryElements: QueryElements): void {
 }
 
 export {
+    QueryElements,
     queryDataSourcesFromSelectors,
     createListeners
 }

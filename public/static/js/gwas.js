@@ -9,6 +9,7 @@ let plotListener = null
 let plots = []
 */
 import * as PlabGwas from "./gwas/services.js";
+import * as PlabPlots from "./gwas/plots.js";
 let queryElements = new PlabGwas.QueryElements();
 queryElements.set("projectId", document.getElementById("projectId"));
 queryElements.set("phenotype", document.getElementById("phenotype"));
@@ -22,11 +23,11 @@ tmp = queryElements.get("phenotype");
 if (tmp === undefined)
     throw new Error("Phenotype selector not defined");
 tmp.eventProcessor = PlabGwas.queryDataSourcesFromSelectors("/api/gwas/chr", ["projectId"], "phenotype", ["chr"]);
-// queryElements.get("chr").eventProcessor = PlabGwas.initAll("projectId",
-//     "phenotype",
-//     "chr",
-//     {
-//         chrOverview: "lzChrOverview",
-//         locusOfInterest: "lzLocusOfInterest"
-//     });
+tmp = queryElements.get("chr");
+if (tmp === undefined)
+    throw new Error("chr selector not defined");
+tmp.eventProcessor = PlabPlots.initAll("projectId", "phenotype", "chr", {
+    chrOverview: "lzChrOverview",
+    locusOfInterest: "lzLocusOfInterest"
+});
 PlabGwas.createListeners(queryElements);

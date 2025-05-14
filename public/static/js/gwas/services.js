@@ -1,11 +1,10 @@
-/** Manage data source queries from selectors
+/** Data source queries from selectors
  *
  * 2025, Palmer Lab at UCSD
  *
  */
 class QueryElements extends Map {
 }
-;
 ;
 /** Reset HTML selector options
  *

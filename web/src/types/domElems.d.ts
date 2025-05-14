@@ -1,4 +1,5 @@
 
+
 declare class QueryElements extends Map<string, DataHtmlSelectElement> {}
 
 declare interface DataHtmlSelectElement extends HTMLSelectElement {

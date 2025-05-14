@@ -6,7 +6,7 @@ declare namespace LocusZoom {
         _url: string
         _getURL(request_options: any): string
         _normalizeResponse(response_text: string,
-            options: any): JSON
+            options: any): any
     }
 
     class DataSources {
@@ -19,7 +19,6 @@ declare namespace LocusZoom {
     interface Registry {
         get(name: string): typeof Adapter
     }
-
 
     interface Panel {
         id:             null | string;

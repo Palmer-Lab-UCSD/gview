@@ -7,7 +7,7 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "forceConsistentCasingInFileNames": true,
-        "outDir": "../public/js",
+        "outDir": "../public/static/js",
         "rootDir": "./src",
         "typeRoots": [
             "./src/types"
