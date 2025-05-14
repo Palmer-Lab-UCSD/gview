@@ -9,8 +9,8 @@ import * as PlabDataLayers from "./data_layers.js";
 const HEIGHT_GENE_ANNOTATION: number = 300;
 const MIN_HEIGHT_GENE_ANNOTATION: number = 150;
 const HEIGHT_ASSOC: number = 300;
-const MARGIN = { top: 35, right: 55, bottom: 40, left: 70 };
-
+const MARGIN: Margin = { top: 35, right: 55, bottom: 40, left: 70 };
+const INNER_BORDER: string = 'rgb(210, 210, 210)';
 
 /** Construct panel for gene tracks and annotations
  * 
@@ -19,12 +19,12 @@ const MARGIN = { top: 35, right: 55, bottom: 40, left: 70 };
  * @returns {Object} an object that defines a panel consistent
  *      with the requirements of locuszoom.js
  */
-function genes(namespace) {
+function genes(namespace: string): PanelGene {
     return {
         id: "gene_tracks",
-        min_height: MIN_HEIGHT_GENE_ANNOTATION,
         height: HEIGHT_GENE_ANNOTATION,
         margin: MARGIN,
+        min_height: MIN_HEIGHT_GENE_ANNOTATION,
         axes: {},
         interaction: {
             drag_background_to_pan: true,
@@ -41,14 +41,12 @@ function genes(namespace) {
  * 
  * @param{String} chr
  */
-function assocBase(chr) {
+function assocBase(chr: string): PanelAssoc {
     return {
-        id: null,
+        id: "",
         height: HEIGHT_ASSOC,
         margin: MARGIN,
-        inner_border: 'rgb(210, 210, 210)',
-        min_region_scale: null,
-        max_region_scale: null,
+        inner_border: INNER_BORDER,
         interaction: {
             drag_background_to_pan: false,
             scroll_to_zoom: false
@@ -65,7 +63,7 @@ function assocBase(chr) {
                 label_offset: 50,
             }
         },
-        data_layers : []
+        data_layers: []
     }
 }
 
@@ -80,11 +78,11 @@ function assocBase(chr) {
  * @returns {Object} javascript object with necessary settings for
  * specifying a fine scale association plot 
  */
-function locusAssoc(dataNamespace,
-    chr,
-    xfield,
-    yfield,
-    sigVal) {
+function locusAssoc(dataNamespace: string,
+    chr: string,
+    xfield: string,
+    yfield: string,
+    sigVal: number): PanelAssoc {
 
     let panel_struct = assocBase(chr);
 
@@ -99,8 +97,9 @@ function locusAssoc(dataNamespace,
     };
 
     panel_struct.data_layers.push(
-        PlabDataLayers.association_pvalues(dataNamespace, xfield, yfield)
+        PlabDataLayers.associationPvalues(dataNamespace, xfield, yfield)
     );
+
     panel_struct.data_layers.push(
         PlabDataLayers.significance(sigVal)
     );
@@ -117,12 +116,18 @@ function locusAssoc(dataNamespace,
  * @returns {Object} javascript object with necessary settings for
  * specifying a chr scale association plot 
  */
-function chrAssoc(dataNamespace, chr, xfield, yfield) {
+function chrAssoc(dataNamespace: string,
+    chr: string,
+    xfield: string,
+    yfield: string): PanelAssoc {
+
     let panel_struct = assocBase(chr);
+
     panel_struct.id = "chrOverview";
     panel_struct.data_layers.push(
-            PlabDataLayers.chr_overview(dataNamespace, xfield, yfield)
+            PlabDataLayers.chrOverview(dataNamespace, xfield, yfield)
     ); 
+
     return panel_struct;
 }
 

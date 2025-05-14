@@ -2,6 +2,7 @@
 declare namespace LocusZoom {
 
     class Adapter {
+        constructor(config: any)
         _url: string
         _getURL(request_options: any): string
         _normalizeResponse(response_text: string,

@@ -19,7 +19,8 @@ const HEIGHT_CHR_OVERVIEW = 150;
  *      }
  *  @param{Array} panels, an array of panel objects to be plotted
  */
-function locusAssoc(state, panels) {
+function locusAssoc(state: AssocState,
+    panels: Array<PanelAssoc | PanelGene>) {
     return {
         height: HEIGHT,
         width: WIDTH,
@@ -30,7 +31,8 @@ function locusAssoc(state, panels) {
 }
 
 
-function chrAssoc(state: ApiRequestAssoc, panels: Array<>) {
+function chrAssoc(state: ChrState,
+    panels: Array<PanelAssoc>) {
     return {
         height: HEIGHT_CHR_OVERVIEW,
         width: WIDTH,

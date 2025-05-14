@@ -26,7 +26,7 @@ class ChrSubsetAdapter extends LocusZoom.Adapters.get("BaseLZAdapter") {
         return `${this._url}?${options}`
     }
 
-    _normalizeResponse(response_text: string, _: ApiRequestChr) {
+    _normalizeResponse(response_text: string, _: ApiRequestChr): JSON {
         //let data = super._normalizeResponse(response_text, options);
         //data = data.data || data;
         return JSON.parse(response_text);
@@ -34,7 +34,7 @@ class ChrSubsetAdapter extends LocusZoom.Adapters.get("BaseLZAdapter") {
 }
 
 class AssocAdapter extends LocusZoom.Adapters.get("BaseLZAdapter") {
-    _getURL (request_options: ApiRequestAssoc) {
+    _getURL (request_options: ApiRequestAssoc): string {
         // TODO fix genome build
         // options.append('build', BUILD)
         if (!Validate.isApiRequestAssoc(request_options)) 
@@ -51,7 +51,7 @@ class AssocAdapter extends LocusZoom.Adapters.get("BaseLZAdapter") {
         return `${this._url}?${options}`
     }
 
-    _normalizeResponse(response_text: string, _: ApiRequestAssoc) {
+    _normalizeResponse(response_text: string, _: ApiRequestAssoc): JSON {
         //let data = super._normalizeResponse(response_text, options);
         //data = data.data || data;
         return JSON.parse(response_text);
@@ -73,7 +73,7 @@ class GeneAdapter extends LocusZoom.Adapters.get("BaseLZAdapter") {
         return `${this._url}?${options}`
     }
 
-    _normalizeResponse(response_text: string, _: ApiRequestGene) {
+    _normalizeResponse(response_text: string, _: ApiRequestGene): JSON {
         return JSON.parse(response_text)
     }
 }

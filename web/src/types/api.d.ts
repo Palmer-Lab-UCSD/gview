@@ -1,17 +1,13 @@
 
-declare class QueryElements extends Map<string, DataHtmlSelectElement> {}
-
-declare interface DataHtmlSelectElement extends HTMLSelectElement {
-    eventProcessor: (queryElements: QueryElements) => void;
-}
-
-
 interface ApiRequestBase {
     projectId:          string;
     phenotype:          string;
     chr:                string;
     build?:             string;
+    get(name: string): string;
 }
+
+declare type ApiRequestPositions = ApiRequestBase
 
 interface ApiRequestAssoc extends ApiRequestBase {
     start:             number;

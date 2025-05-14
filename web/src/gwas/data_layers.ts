@@ -4,7 +4,10 @@
  * 2025
  */
 
-function chr_overview(dataNamespace, xfield, yfield) {
+function chrOverview(dataNamespace: string,
+    xfield: string,
+    yfield: string): AssocDataLayer {
+
     return {
         namespace: { 'assocOverview': dataNamespace },
         id: 'chrOverviewAssoc',
@@ -18,8 +21,8 @@ function chr_overview(dataNamespace, xfield, yfield) {
             field: `assocOverview:${xfield}`,
         },
         y_axis: {
-            axis: 1,
             field: `assocOverview:${yfield}`,
+            axis: 1,
             floor: 0,
             upper_buffer: 0.10,
             min_extent: [0, 10],
@@ -27,13 +30,14 @@ function chr_overview(dataNamespace, xfield, yfield) {
     };
 }
 
-function association_pvalues(dataNamespace, xfield, yfield) {
+function associationPvalues(dataNamespace: string,
+    xfield: string,
+    yfield: string): AssocDataLayer {
     return {
         namespace: { 'assoc': dataNamespace },
         id: 'associationpvalues',
         type: 'scatter',
         id_field: 'assoc:Snp',
-        tag:"associatoinpvalues",
         color: [
             '#005493',
         ],
@@ -50,7 +54,7 @@ function association_pvalues(dataNamespace, xfield, yfield) {
     };
 }
 
-function significance(val) {
+function significance(val: number): LineLayer {
     return {
         id: 'significance',
         type: 'orthogonal_line',
@@ -59,22 +63,22 @@ function significance(val) {
     };
 }
 
-function gene(namespace) {
+function gene(namespace: string): GeneLayer {
     return {
-        namespace: { 'genes': namespace },  // required
+        namespace: { 'genes': namespace },
         id: 'gene_tracks',
-        type: 'plab_genes',                 // required
-        id_field: 'genes:GeneId',           // required
-        gene_name_field: 'genes:GeneId',    // required
-        start_field: 'genes:Start',         // required
-        end_field: 'genes:End',             // required
-        strand_field: "genes:Strand"        // required
+        type: 'plab_genes',
+        id_field: 'genes:GeneId',
+        gene_name_field: 'genes:GeneId',
+        start_field: 'genes:Start',
+        end_field: 'genes:End',
+        strand_field: "genes:Strand"
     }
 }
 
 export { 
-    association_pvalues,
-    chr_overview,
+    associationPvalues,
+    chrOverview,
     gene,
     significance
 };

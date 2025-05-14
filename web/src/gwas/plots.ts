@@ -4,8 +4,7 @@
 import * as PlabApiAdapters from "./adapters.js";
 import * as PlabPanels from "./panels.js";
 import * as PlabLayouts from "./layouts.js"
-import { uiState } from "./uiState.js"
-import { QueryElements } from "./services.js";
+import { ui } from "./state.js"
 
 
 const URLS = {
@@ -44,7 +43,7 @@ const SIG_VAL: number = 5;
  *  - {int} Length, Start - End
  * @param {String} htmlIdForPlot
  */
-async function makeChrPlot(options: ApiRequestOptionsPlots,
+async function makeChrPlot(options: URLSearchParams,
     chrInfo: ChrInfoPlots,
     htmlIdForPlot: string): Promise<void> {
 
@@ -57,19 +56,27 @@ async function makeChrPlot(options: ApiRequestOptionsPlots,
     const data_sources = new LocusZoom.DataSources()
          .add(dataNamespace, chrOverviewAdapter);
 
-    const layout = PlabLayouts.chrAssoc({
-            projectId: options.get("projectId"),
-            phenotype: options.get("phenotype"),
-            chr: options.get("chr"),
-            start: chrInfo.Start,
-            end: chrInfo.End
-        },[
+    const state = {
+        projectId: options.get("projectId"),
+        phenotype: options.get("phenotype"),
+        chr: options.get("chr"),
+        start: chrInfo.start,
+        end: chrInfo.end
+    }
+
+    if (state.projectId === null 
+        || state.phenotype === null
+        || state.chr === null)
+        throw new Error("Invalid parameters");
+
+    const layout = PlabLayouts.chrAssoc(state as ChrState,
+        [
             PlabPanels.chrAssoc(dataNamespace,
-                options.get("chr"), "Pos", "NegLogPval")
+                state.chr, "Pos", "NegLogPval")
         ]
     );
 
-    uiState.plots.push(LocusZoom.populate(`#${htmlIdForPlot}`,
+    ui.push(LocusZoom.populate(`#${htmlIdForPlot}`,
         data_sources,
         layout));
 }
@@ -92,11 +99,11 @@ async function makeChrPlot(options: ApiRequestOptionsPlots,
  *      - end: positive int
  *  @param {string} id of html tag in which the figure is placed.
 */
-async function makeLocusPlot(state: ApiRequestOptionsPlots,
+async function makeLocusPlot(options: URLSearchParams,
     sigVal: number,
     htmlIdForPlot: string): Promise<void> {
 
-    const assocAdapter = new AssocAdapter({
+    const assocAdapter = new PlabApiAdapters.AssocAdapter({
         url: URLS.GET_ASSOC_DATA
     });
 
@@ -108,14 +115,33 @@ async function makeLocusPlot(state: ApiRequestOptionsPlots,
          .add("assoc", assocAdapter)
          .add("gene", geneAdapter);
 
-    const layout = PlabLayouts.locusAssoc(state, 
+    const state = {
+        projectId: options.get("projectId"),
+        phenotype: options.get("phenotype"),
+        chr: options.get("chr"),
+        start: options.get("start"),
+        end: options.get("end")
+    }
+
+    if (state.projectId === null 
+        || state.phenotype === null
+        || state.chr === null
+        || state.start === null 
+        || state.end === null)
+        throw new Error("Invalid parameters");
+
+    const layout = PlabLayouts.locusAssoc(state as AssocState, 
         [
-            PlabPanels.locusAssoc("assoc", state.chr, "Pos", "NegLogPval", sigVal),
-            panel_genes("gene")
+            PlabPanels.locusAssoc("assoc",
+                state.chr, 
+                "Pos",
+                "NegLogPval",
+                sigVal),
+            PlabPanels.genes("gene")
         ]
     );
 
-    uiState.plots.push(LocusZoom.populate(`#${htmlIdForPlot}`,
+    ui.push(LocusZoom.populate(`#${htmlIdForPlot}`,
         data_sources,
         layout));
 
@@ -127,7 +153,7 @@ async function makeLocusPlot(state: ApiRequestOptionsPlots,
 }
 
 
-async function getInitPositions(options: ApiRequestOptionsPlots): Promise<Array<number>> {
+async function getInitPositions(options: URLSearchParams): Promise<Array<number>> {
     const response = await fetch(`${URLS.GET_INIT_POS}?${options}`);
     if (!response.ok) {
         throw new Error("Couldn't get initial position")
@@ -136,7 +162,7 @@ async function getInitPositions(options: ApiRequestOptionsPlots): Promise<Array<
     return response.json();
 }
 
-async function getChrInfo(options: ApiRequestOptionsPlots): Promise<ChrInfoPlots> {
+async function getChrInfo(options: URLSearchParams): Promise<ChrInfoPlots> {
     const response: Response = await fetch(`${URLS.GET_CHROM_POS}?${options}`);
 
     if (!response.ok) {
@@ -153,7 +179,7 @@ function initAll(htmlIdForProjectId: string,
 
     return async function g(queryElements: QueryElements): Promise<void> {
 
-        const options = new ApiRequestOptionsPlots();
+        const options = new URLSearchParams();
         options.append("build", BUILD)
 
         let tmp = queryElements.get(htmlIdForProjectId) as DataHtmlSelectElement | undefined;
@@ -172,17 +198,19 @@ function initAll(htmlIdForProjectId: string,
             throw new Error("no chr");
         options.append("chr", tmp.value);
 
-        options.append("halfRegionSize", HALF_REGION_SIZE.toString());
 
         // Construct overview plot
         const chrStats: ChrInfoPlots = await getChrInfo(options);
-        makeChrPlot(options, chrStats, htmlIdsForPlots.chrOverview);
+        makeChrPlot(options,
+            chrStats,
+            htmlIdsForPlots.chrOverview);
 
 
         // Construct fine-scale plot
         const output: Array<number> = await getInitPositions(options)
         options.append('start', output[0].toString());
         options.append('end', output[1].toString());
+        options.append("halfRegionSize", HALF_REGION_SIZE.toString());
 
         // TODO need to query sigVal from database
         makeLocusPlot(options, SIG_VAL, htmlIdsForPlots.locusOfInterest);
