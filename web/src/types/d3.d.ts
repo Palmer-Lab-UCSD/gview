@@ -47,5 +47,5 @@ declare namespace d3 {
         size(): number;
     }
 
-    export function select(name: any): Selection;
+    export function select(name: SVGGElement | SVGElement | Selection): Selection;
 }

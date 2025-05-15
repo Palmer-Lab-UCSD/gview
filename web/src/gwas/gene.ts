@@ -227,57 +227,71 @@ class PlabGenes extends LocusZoom.DataLayers.get("BaseDataLayer") {
                 const data_layer = gene.parent;
                 // Render gene bounding boxes (status nodes to show selected/highlighted)
                 // Remember that `this` references the DOM 'g' element and not the parent class PlabGenes;
-                const bboxes = d3.select(this).selectAll('rect.lz-data_layer-genes.lz-data_layer-genes-statusnode')
+                const bboxes = d3.select(this: SVGGElement).selectAll('rect.lz-data_layer-genes.lz-data_layer-genes-statusnode')
                     .data([gene], (d: GeneTrackRecord) => data_layer.getElementStatusNodeId(d));
                 height = data_layer.getTrackHeight() - data_layer.layout.track_vertical_spacing;
                 bboxes.enter()
                     .append('rect')
                     .attr('class', 'lz-data_layer-genes lz-data_layer-genes-statusnode')
                     .merge(bboxes)
-                    .attr('id', (d) => data_layer.getElementStatusNodeId(d))
+                    .attr('id', (d: GeneTrackRecord) => data_layer.getElementStatusNodeId(d))
                     .attr('rx', data_layer.layout.bounding_box_padding)
                     .attr('ry', data_layer.layout.bounding_box_padding)
-                    .attr('width', (d) => d.display_range.width)
+                    .attr('width', (d: GeneTrackRecord) => d.display_range.width)
                     .attr('height', height)
-                    .attr('x', (d) => d.display_range.start)
-                    .attr('y', (d) => ((d.track - 1) * data_layer.getTrackHeight()));
+                    .attr('x', (d: GeneTrackRecord) => d.display_range.start)
+                    .attr('y', (d: GeneTrackRecord) => ((d.track - 1) * data_layer.getTrackHeight()));
 
                 bboxes.exit()
                     .remove();
+
                 // Render gene boundaries
-                const boundaries = d3.select(this).selectAll('rect.lz-data_layer-genes.lz-boundary')
-                    .data([gene], (d) => `${d[gene_name_field]}_boundary`);
+                const boundaries = d3.select(this: SVGGElement).selectAll('rect.lz-data_layer-genes.lz-boundary')
+                    .data([gene], (d: GeneTrackRecord) => `${d.GeneId}_boundary`);
+
                 // FIXME: Make gene text font sizes scalable
                 height = 1;
                 boundaries.enter()
                     .append('rect')
                     .attr('class', 'lz-data_layer-genes lz-boundary')
                     .merge(boundaries)
-                    .attr('width', (d) => data_layer.parent.x_scale(d[end_field]) - data_layer.parent.x_scale(d[start_field]))
+                    .attr('width', (d: GeneTrackRecord) => {
+                        return data_layer.parent.x_scale(d.end) - data_layer.parent.x_scale(d.start)
+                    })
                     .attr('height', height)
-                    .attr('x', (d) => data_layer.parent.x_scale(d[start_field]))
-                    .attr('y', (d) => {
+                    .attr('x', (d: GeneTrackRecord) => data_layer.parent.x_scale(d.start))
+                    .attr('y', (d: GeneTrackRecord) => {
                         return ((d.track - 1) * data_layer.getTrackHeight())
                             + data_layer.layout.bounding_box_padding
                             + data_layer.layout.label_font_size
                             + data_layer.layout.label_exon_spacing
                             + (Math.max(data_layer.layout.exon_height, 3) / 2);
                     })
-                    .style('fill', (d, i) => self.resolveScalableParameter(self.layout.color, d, i))
-                    .style('stroke', (d, i) => self.resolveScalableParameter(self.layout.stroke, d, i));
+                    .style('fill', (d: GeneTrackRecord, i: number) => {
+                        return self.resolveScalableParameter(self.layout.color, d, i)
+                    })
+                    .style('stroke', (d: GeneTrackRecord, i: number) => {
+                        return self.resolveScalableParameter(self.layout.stroke, d, i)
+                    });
+
                 boundaries.exit()
                     .remove();
+
                 // Render gene labels
                 const labels = d3.select(this).selectAll('text.lz-data_layer-genes.lz-label')
-                    .data([gene], (d) => `${d[gene_name_field]}_label`);
+                    .data([gene], (d: GeneTrackRecord) => `${d.GeneId}_label`);
+
+
                 labels.enter()
                     .append('text')
                     .attr('class', 'lz-data_layer-genes lz-label')
                     .merge(labels)
-                    .attr('text-anchor', (d) => d.display_range.text_anchor)
-                    .text((d) => (d[strand_field] === "+") ? `${d[gene_name_field]}→` : `←${d[gene_name_field]}`)
+                    .attr('text-anchor', (d: GeneTrackRecord) => d.display_range.text_anchor)
+                    .text((d) => {
+                        return (d.strand === "+") ? `${d.GeneId}→` : `←${d.GeneId}`
+                    })
                     .style('font-size', gene.parent.layout.label_font_size)
-                    .attr('x', (d) => {
+                    .attr('x', (d: GeneTrackRecord) => {
                         if (d.display_range.text_anchor === 'middle') {
                             return d.display_range.start + (d.display_range.width / 2);
                         } else if (d.display_range.text_anchor === 'start') {
@@ -286,7 +300,7 @@ class PlabGenes extends LocusZoom.DataLayers.get("BaseDataLayer") {
                             return d.display_range.end - data_layer.layout.bounding_box_padding;
                         }
                     })
-                    .attr('y', (d) => ((d.track - 1) * data_layer.getTrackHeight())
+                    .attr('y', (d: GeneTrackRecord) => ((d.track - 1) * data_layer.getTrackHeight())
                         + data_layer.layout.bounding_box_padding
                         + data_layer.layout.label_font_size,
                     );
@@ -315,20 +329,25 @@ class PlabGenes extends LocusZoom.DataLayers.get("BaseDataLayer") {
                 // exons.exit()
                 //     .remove();
                 // Render gene click area
-                const clickareas = d3.select(this).selectAll('rect.lz-data_layer-genes.lz-clickarea')
-                    .data([gene], (d) => `${d.gene_name}_clickarea`);
+                const clickareas = d3.select(this: SVGGElement).selectAll('rect.lz-data_layer-genes.lz-clickarea')
+                    .data([gene], (d: GeneTrackRecord) => `${d.GeneId}_clickarea`);
+
                 height = data_layer.getTrackHeight() - data_layer.layout.track_vertical_spacing;
+
                 clickareas.enter()
                     .append('rect')
                     .attr('class', 'lz-data_layer-genes lz-clickarea')
                     .merge(clickareas)
-                    .attr('id', (d) => `${data_layer.getElementId(d)}_clickarea`)
+                    .attr('id', (d: GeneTrackRecord) => `${data_layer.getElementId(d)}_clickarea`)
                     .attr('rx', data_layer.layout.bounding_box_padding)
                     .attr('ry', data_layer.layout.bounding_box_padding)
-                    .attr('width', (d) => d.display_range.width)
+                    .attr('width', (d: GeneTrackRecord) => d.display_range.width)
                     .attr('height', height)
-                    .attr('x', (d) => d.display_range.start)
-                    .attr('y', (d) => ((d.track - 1) * data_layer.getTrackHeight()));
+                    .attr('x', (d: GeneTrackRecord) => d.display_range.start)
+                    .attr('y', (d: GeneTrackRecord) => {
+                        return ((d.track - 1) * data_layer.getTrackHeight())
+                    });
+
                 // Remove old clickareas as needed
                 clickareas.exit()
                     .remove();

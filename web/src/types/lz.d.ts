@@ -36,19 +36,25 @@ declare namespace LocusZoom {
         clipRect:   d3.Selection;
     }
 
+    interface Behavior {
+        bind(name: d3.Selection): 
+    }
+
     class DataLayer {
         constructor(layout: GeneLayerSettings, parent: Panel | null)
         parent:                                 Panel
         tracks:                                 number;
         gene_track_index:                       NumericKeyObj<any>;
         layout:                                 GeneLayerSettings;
+        applyBehaviors:                         Behavior;
 
         state:                                  state;
         svg:                                    PlotElements;
-        data:                                   Array<Svg>;
+        // data:                                   Array<Svg>;
 
         _applyFilters():                       Array<GeneTrackRecord>;
         getElementId(element: HTMLElement | d3.Selection):     string;
+        resolveScalableParameter(option_layout: string, element_data: GeneTrackRecord, data_index: number):  GeneTrackRecord
         _tooltips?:                             object;
     }
 
@@ -85,6 +91,6 @@ declare type config = {
 declare interface GeneTrackRecord extends GeneAnnotationRecord {
     display_range:      GeneDisplay;
     display_domain:     GeneDisplay;
-    track:              number | null;
+    track:              number;
     parent:             any;
 }
