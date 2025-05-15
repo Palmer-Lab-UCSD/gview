@@ -1,10 +1,10 @@
 
 interface GeneDisplay {
-    label_width:        number;
-    width:              number;
-    text_anchor:        "middle" | "end" | "start";
     start:              number;
     end:                number;
+    label_width?:        number;
+    width?:              number;
+    text_anchor?:        "middle" | "end" | "start";
 }
 
 declare interface GeneAnnotationRecord {
@@ -21,6 +21,10 @@ declare interface GeneAnnotationRecord {
 	Product:            string;
 	GeneBiotype:        string;
 	TranscriptBiotype:  string;
-    // These are locus zoom elements
+    // These elements are added by locuszoom, they are not returned
+    // from data base
     display_range:      GeneDisplay;
+    display_domain:     GeneDisplay;
+    track:              number | null;
+    parent:             any;
 }

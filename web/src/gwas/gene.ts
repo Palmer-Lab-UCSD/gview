@@ -120,25 +120,24 @@ class PlabGenes extends LocusZoom.DataLayers.get("BaseDataLayer") {
             //  when zooming in, without breaking the layout by allocating space for genes that are not visible.
             .filter((item) => !(item.end < this.state.start) && !(item.start > this.state.end))
             .map((item) => {
-                const {start_field, end_field, gene_name_field} = this.layout;
                 // Determine display range start and end, based on minimum allowable gene display width, bounded by what we can see
                 // (range: values in terms of pixels on the screen)
                 item.display_range = {
-                    start: this.parent.x_scale(Math.max(item[start_field], this.state.start)),
-                    end:   this.parent.x_scale(Math.min(item[end_field], this.state.end)),
+                    start: this.parent.x_scale(Math.max(item.start, this.state.start)),
+                    end:   this.parent.x_scale(Math.min(item.end, this.state.end))
                 };
 
-                item.display_range.label_width = _getLabelWidth(item[gene_name_field], this.layout.label_font_size);
+                item.display_range.label_width = _getLabelWidth(item.GeneId, this.layout.label_font_size);
                 item.display_range.width = item.display_range.end - item.display_range.start;
 
                 item.display_range.text_anchor = 'middle';
                 if (item.display_range.width < item.display_range.label_width) {
-                    if (item["start_field"] < this.state.start) {
+                    if (item.start < this.state.start) {
                         item.display_range.end = item.display_range.start
                             + item.display_range.label_width
                             + this.layout.label_font_size;
                         item.display_range.text_anchor = 'start';
-                    } else if (item["end_field"] > this.state.end) {
+                    } else if (item.end > this.state.end) {
                         item.display_range.start = item.display_range.end
                             - item.display_range.label_width
                             - this.layout.label_font_size;
@@ -208,23 +207,22 @@ class PlabGenes extends LocusZoom.DataLayers.get("BaseDataLayer") {
     /**
      * Main render function
      */
-    render() {
+    render(): void {
         const self = this;
         // Apply filters to only render a specified set of points
-        let track_data = this._applyFilters();
+        let track_data: Array<GeneAnnotationRecord> = this._applyFilters();
         track_data = this.assignTracks(track_data);
 
         let height;
         // Render gene groups
-        const {start_field, end_field, gene_name_field, strand_field} = this.layout;
         const selection = this.svg.group.selectAll('g.lz-data_layer-genes')
-            .data(track_data, (d) => d[gene_name_field]);
+            .data(track_data, (d) => d.GeneId);
 
         selection.enter()
             .append('g')
             .attr('class', 'lz-data_layer-genes')
             .merge(selection)
-            .attr('id', (d) => this.getElementId(d))
+            .attr('id', (d: d3.obj | HTMLElement) => this.getElementId(d))
             .each(function(gene) {
                 const data_layer = gene.parent;
                 // Render gene bounding boxes (status nodes to show selected/highlighted)

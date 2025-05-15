@@ -21,9 +21,11 @@ declare namespace LocusZoom {
     }
 
     interface Panel {
-        id:             null | string;
-        height:         null | number;
-        data_layers:    Array<number>;
+        id:                     null | string;
+        height:                 null | number;
+        data_layers:            Array<number>;
+
+        x_scale(val: number):           number;
     }
 
     interface Plot {}
@@ -46,23 +48,32 @@ declare namespace LocusZoom {
     }
 
     interface SvgGroup {
-        append(name: string): SvgRecord;
+        append(name: string):                       SvgRecord;
+        selectAll(name: string):                    SvgGroup;
+        data(names: Array<GeneAnnotationRecord>, fn: (d: GeneAnnotationRecord) => string):   Array<string>;
     }
 
-    interface Svg {
-        group:      SvgGroup;
+
+    interface PlotElements {
+        group:      d3.selection;
+        container:  d3.selection;
+        clipRect:   d3.selection;
     }
 
     class DataLayer {
         constructor(layout: GeneLayerSettings, parent: Panel | null)
-
+        parent:                                 Panel
         tracks:                                 number;
         gene_track_index:                       NumericKeyObj<any>;
         layout:                                 GeneLayerSettings;
 
         state:                                  state;
-        svg:                                    Svg;
-        getElementId(element: HTMLElement):     string;
+        svg:                                    PlotElements;
+        data:                                   Array<Svg>;
+
+        _applyFilters():                       Array<GeneAnnotationRecord>;
+        getElementId(element: HTMLElement | d3.obj):     string;
+        _tooltips?:                             object;
     }
 
     interface DataLayerStruct {
