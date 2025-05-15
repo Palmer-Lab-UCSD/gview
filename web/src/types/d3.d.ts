@@ -5,7 +5,7 @@ declare namespace d3 {
     }
 
 
-    interface Node extends Element {
+    export interface Node extends Element {
         getBBox():  BBoxElement;
     }
 

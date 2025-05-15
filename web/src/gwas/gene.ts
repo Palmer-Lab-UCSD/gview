@@ -226,8 +226,9 @@ class PlabGenes extends LocusZoom.DataLayers.get("BaseDataLayer") {
             .each(function(gene: GeneTrackRecord) {
                 const data_layer = gene.parent;
                 // Render gene bounding boxes (status nodes to show selected/highlighted)
+                // Remember that `this` references the DOM 'g' element and not the parent class PlabGenes;
                 const bboxes = d3.select(this).selectAll('rect.lz-data_layer-genes.lz-data_layer-genes-statusnode')
-                    .data([gene: Selection], (d) => data_layer.getElementStatusNodeId(d));
+                    .data([gene], (d: GeneTrackRecord) => data_layer.getElementStatusNodeId(d));
                 height = data_layer.getTrackHeight() - data_layer.layout.track_vertical_spacing;
                 bboxes.enter()
                     .append('rect')
