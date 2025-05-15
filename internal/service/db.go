@@ -11,13 +11,13 @@ import (
 )
 
 type GeneAnnotationRecord struct {
-	Id                uint64
-	Chr               string
+	Id                uint64 `json:"id"`
+	Chr               string `json:"chr"`
 	Refseq            string
 	Feature           string
-	Start             uint64
-	End               uint64
-	Strand            string
+	Start             uint64 `json:"start"`
+	End               uint64 `json:"end"`
+	Strand            string `json:"strand"`
 	GeneId            string
 	TranscriptId      string
 	Product           string

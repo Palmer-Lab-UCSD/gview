@@ -29,7 +29,9 @@ class ChrSubsetAdapter extends LocusZoom.Adapters.get("BaseLZAdapter") {
     _normalizeResponse(response_text: string, _: ApiRequestChr): any {
         //let data = super._normalizeResponse(response_text, options);
         //data = data.data || data;
-        return JSON.parse(response_text);
+        const tmp = JSON.parse(response_text);
+        console.log(tmp);
+        return tmp;
     }
 }
 

@@ -4,12 +4,13 @@ import { uiState } from "./gwas/uiState.js";
 
 console.log(LocusZoom)
 console.log(PlabGenes)
-LocusZoom.DataLayers.add("plab_genes", PlabGwas.PlabGenes)
 let plotListener = null
 let plots = []
 */
 import * as PlabGwas from "./gwas/services.js";
+import { PlabGenes } from "./gwas/genes.js";
 import * as PlabPlots from "./gwas/plots.js";
+LocusZoom.DataLayers.add("plab_genes", PlabGenes);
 let queryElements = new PlabGwas.QueryElements();
 queryElements.set("projectId", document.getElementById("projectId"));
 queryElements.set("phenotype", document.getElementById("phenotype"));

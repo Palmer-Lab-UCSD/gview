@@ -159,7 +159,9 @@ async function getInitPositions(options: URLSearchParams): Promise<Array<number>
         throw new Error("Couldn't get initial position")
     }
     // remember that response.json() returns a promise
-    return response.json();
+    const tmp = response.json();
+    console.log(tmp);
+    return tmp
 }
 
 async function getChrInfo(options: URLSearchParams): Promise<ChrInfoPlots> {
@@ -201,21 +203,18 @@ function initAll(htmlIdForProjectId: string,
 
         // Construct overview plot
         const chrStats: ChrInfoPlots = await getChrInfo(options);
-
         makeChrPlot(options,
             chrStats,
             htmlIdsForPlots.chrOverview);
 
+        options.append("halfRegionSize", HALF_REGION_SIZE.toString());
 
         // Construct fine-scale plot
-        console.log("options before", options);
         const output: Array<number> = await getInitPositions(options)
-        console.log("after", options);
 
-        console.log("output posits")
+        console.log("output posits", output)
         options.append('start', output[0].toString());
         options.append('end', output[1].toString());
-        options.append("halfRegionSize", HALF_REGION_SIZE.toString());
 
         // TODO need to query sigVal from database
         makeLocusPlot(options, SIG_VAL, htmlIdsForPlots.locusOfInterest);

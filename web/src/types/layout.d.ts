@@ -3,6 +3,48 @@
  */
 
 
+
+declare interface GeneTooltipVis {
+    or?:    Array<string>;
+    and?:   Array<string>;
+};
+
+declare interface GeneTooltip {
+    closeable: boolean;
+    show: GeneTooltipVis;
+    hide: GeneTooltipVis;
+    html: string;
+};
+
+declare interface MouseSettings {
+    action?:        string;
+    status?:        string;
+    exclusive?:     boolean;
+};
+
+declare interface MouseBehaviors {
+    onmouseover:    Array<MouseSettings>;
+    onmouseout:     Array<MouseSettings>;
+    onclick:        Array<MouseSettings>;
+};
+
+declare interface GeneLayerSettings {
+    stroke:                     string;
+    color:                      string;
+    label_font_size:            number;
+    label_exon_spacing:         number; 
+    exon_height:                number; 
+    bounding_box_padding:       number; 
+    track_vertical_spacing:     number; 
+    tooltip_positioning:        "horizontal" | "vertical" | "top" | "bottom" | "left" | "right";
+    tooltip:                    GeneTooltip;
+    behaviors:                  MouseBehaviors;
+    start_field?:               string;
+    end_field?:                 string;
+    gene_name_field?:           string;
+};
+
+
 declare interface AssocState {
     projectId:      string;
     phenotype:      string;
