@@ -21,10 +21,4 @@ declare interface GeneAnnotationRecord {
 	Product:            string;
 	GeneBiotype:        string;
 	TranscriptBiotype:  string;
-    // These elements are added by locuszoom, they are not returned
-    // from data base
-    display_range:      GeneDisplay;
-    display_domain:     GeneDisplay;
-    track:              number | null;
-    parent:             any;
 }

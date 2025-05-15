@@ -67,7 +67,7 @@ class PlabGenes extends LocusZoom.DataLayers.get("BaseDataLayer") {
      * @override
      * @returns {String}
      */
-    getElementStatusNodeId(element: HTMLElement): string {
+    getElementStatusNodeId(element: d3.Selection): string {
         return `${this.getElementId(element)}-statusnode`;
     }
     /**
@@ -86,7 +86,7 @@ class PlabGenes extends LocusZoom.DataLayers.get("BaseDataLayer") {
      *   overlap in the view. A track is a row used to vertically separate overlapping genes.
      * @returns {Genes}
      */
-    assignTracks(data:Array<GeneAnnotationRecord>): Array<GeneAnnotationRecord> {
+    assignTracks(data:Array<GeneTrackRecord>): Array<GeneTrackRecord> {
         /**
          * Function to get the width in pixels of a label given the text and layout attributes
          * @param {String} gene_name
@@ -210,24 +210,24 @@ class PlabGenes extends LocusZoom.DataLayers.get("BaseDataLayer") {
     render(): void {
         const self = this;
         // Apply filters to only render a specified set of points
-        let track_data: Array<GeneAnnotationRecord> = this._applyFilters();
+        let track_data: Array<GeneTrackRecord> = this._applyFilters();
         track_data = this.assignTracks(track_data);
 
         let height;
         // Render gene groups
         const selection = this.svg.group.selectAll('g.lz-data_layer-genes')
-            .data(track_data, (d) => d.GeneId);
+            .data(track_data, (d: GeneTrackRecord) => d.GeneId);
 
         selection.enter()
             .append('g')
             .attr('class', 'lz-data_layer-genes')
             .merge(selection)
-            .attr('id', (d: d3.obj | HTMLElement) => this.getElementId(d))
-            .each(function(gene) {
+            .attr('id', (d: d3.Selection) => this.getElementId(d))
+            .each(function(gene: GeneTrackRecord) {
                 const data_layer = gene.parent;
                 // Render gene bounding boxes (status nodes to show selected/highlighted)
                 const bboxes = d3.select(this).selectAll('rect.lz-data_layer-genes.lz-data_layer-genes-statusnode')
-                    .data([gene], (d) => data_layer.getElementStatusNodeId(d));
+                    .data([gene: Selection], (d) => data_layer.getElementStatusNodeId(d));
                 height = data_layer.getTrackHeight() - data_layer.layout.track_vertical_spacing;
                 bboxes.enter()
                     .append('rect')

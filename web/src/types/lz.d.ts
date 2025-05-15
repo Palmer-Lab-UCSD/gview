@@ -30,34 +30,10 @@ declare namespace LocusZoom {
 
     interface Plot {}
 
-    interface BBox {
-        width: number;
-    }
-
-    interface Node {
-        getBBox(): BBox;
-    }
-
-    class SvgRecord {
-        attr(key: string, val: string | number): this;
-        style(key: string, val: string | number): SvgRecord;
-        text(val: string): SvgRecord;
-
-        node(): Node;
-        remove(): void;
-    }
-
-    interface SvgGroup {
-        append(name: string):                       SvgRecord;
-        selectAll(name: string):                    SvgGroup;
-        data(names: Array<GeneAnnotationRecord>, fn: (d: GeneAnnotationRecord) => string):   Array<string>;
-    }
-
-
     interface PlotElements {
-        group:      d3.selection;
-        container:  d3.selection;
-        clipRect:   d3.selection;
+        group:      d3.Selection;
+        container:  d3.Selection;
+        clipRect:   d3.Selection;
     }
 
     class DataLayer {
@@ -71,8 +47,8 @@ declare namespace LocusZoom {
         svg:                                    PlotElements;
         data:                                   Array<Svg>;
 
-        _applyFilters():                       Array<GeneAnnotationRecord>;
-        getElementId(element: HTMLElement | d3.obj):     string;
+        _applyFilters():                       Array<GeneTrackRecord>;
+        getElementId(element: HTMLElement | d3.Selection):     string;
         _tooltips?:                             object;
     }
 
@@ -104,4 +80,11 @@ declare type config = {
     url: string;
     prefix_namespace: boolean;
     limit_fields: null | Array<string>;
+}
+
+declare interface GeneTrackRecord extends GeneAnnotationRecord {
+    display_range:      GeneDisplay;
+    display_domain:     GeneDisplay;
+    track:              number | null;
+    parent:             any;
 }
