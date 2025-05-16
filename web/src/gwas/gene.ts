@@ -329,7 +329,8 @@ class PlabGenes extends LocusZoom.DataLayers.get("BaseDataLayer") {
                 // exons.exit()
                 //     .remove();
                 // Render gene click area
-                const clickareas = d3.select(this: SVGGElement).selectAll('rect.lz-data_layer-genes.lz-clickarea')
+                const clickareas = d3.select(this: PlabGenes)
+                    .selectAll('rect.lz-data_layer-genes.lz-clickarea')
                     .data([gene], (d: GeneTrackRecord) => `${d.GeneId}_clickarea`);
 
                 height = data_layer.getTrackHeight() - data_layer.layout.track_vertical_spacing;
@@ -355,15 +356,20 @@ class PlabGenes extends LocusZoom.DataLayers.get("BaseDataLayer") {
         // Remove old elements as needed
         selection.exit()
             .remove();
+
         // Apply mouse behaviors & events to clickareas
         this.svg.group
-            .on('click.event_emitter', (element) => this.parent.emit('element_clicked', element, true))
+            .on('click.event_emitter', (d: GeneTrackRecord) => { 
+                this.parent.emit('element_clicked', d, true)
+            })
             .call(this.applyBehaviors.bind(this));
     }
 
     _getTooltipPosition(tooltip) {
+
         const gene_bbox_id = this.getElementStatusNodeId(tooltip.data);
         const gene_bbox = d3.select(`#${gene_bbox_id}`).node().getBBox();
+
         return {
             x_min: this.parent.x_scale(tooltip.data.display_domain.start),
             x_max: this.parent.x_scale(tooltip.data.display_domain.end),

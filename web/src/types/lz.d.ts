@@ -26,6 +26,8 @@ declare namespace LocusZoom {
         data_layers:            Array<number>;
 
         x_scale(val: number):           number;
+        emit(eventName: string, element: Event, val: boolean): Panel;
+        call(fn: (val: any) => any): Panel;
     }
 
     interface Plot {}
@@ -37,7 +39,7 @@ declare namespace LocusZoom {
     }
 
     interface Behavior {
-        bind(name: d3.Selection): 
+        bind(name: any): any;
     }
 
     class DataLayer {
@@ -54,6 +56,8 @@ declare namespace LocusZoom {
 
         _applyFilters():                       Array<GeneTrackRecord>;
         getElementId(element: HTMLElement | d3.Selection):     string;
+
+        emit(event_type: string, element:d3.Selection , val: boolean):   DataLayer;
         resolveScalableParameter(option_layout: string, element_data: GeneTrackRecord, data_index: number):  GeneTrackRecord
         _tooltips?:                             object;
     }

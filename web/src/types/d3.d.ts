@@ -2,6 +2,8 @@ declare namespace d3 {
 
     interface BBoxElement {
         width:  number;
+        height: number;
+        y:  number;
     }
 
 
@@ -38,7 +40,8 @@ declare namespace d3 {
         html(value: string | ((d: any, i: number) => string)): Selection;
     
         // Events
-        on(typenames: string, callback: (event: Event, d: any) => void): Selection;
+        on(typenames: string, callback: (d: any, event?: Event | undefined) => void): Selection;
+        call(value: any): Selection;
     
         // Utilities
         each(callback: (d: any, i: number, nodes: Element[]) => void): Selection;
@@ -47,5 +50,5 @@ declare namespace d3 {
         size(): number;
     }
 
-    export function select(name: SVGGElement | SVGElement | Selection): Selection;
+    export function select(name: SVGGElement | SVGElement | Selection | string): Selection;
 }
