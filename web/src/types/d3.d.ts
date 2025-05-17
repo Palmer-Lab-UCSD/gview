@@ -6,11 +6,9 @@ declare namespace d3 {
         y:  number;
     }
 
-
     export interface Node extends Element {
         getBBox():  BBoxElement;
     }
-
 
     /** 
      * Claude, the AI assistant by Anthropic helped me define the
@@ -19,36 +17,50 @@ declare namespace d3 {
      * methods.  Second I needed help on the input and return types.
      */
     export interface Selection {
-        select(select: (() => string) | string):    Selection;
-        selectAll(selector: string):                Selection;
-        filter(filter: string, value: string | number | ((d: any) => any)):   Selection;
+        select(select: (() => string) | string):                Selection;
+        selectAll(selector: string):                            Selection;
+        filter(filter: string,
+            value: string 
+            | number 
+            | ((d: any) => any)):                               Selection;
 
         // Data binding
-        data<T>(data: Array<T>, fn: (d: T) => string):  Selection;
-        enter():                                        Selection;
-        exit():                                         Selection;
-        merge(val: Selection):                          Selection;
+        data<T>(data: Array<T>,
+            fn: (d: T) => string):                              Selection;
+        merge(val: Selection):                                  Selection;
+
+        enter():                                                Selection;
+        exit():                                                 Selection;
 
         // DOM manipulation
-        append(name: string):                           Selection;
-        remove():                                       Selection;
+        append(name: string):                                   Selection;
+        remove():                                               Selection;
     
         // Attributes and properties
-        attr(name: string, value: any | ((d: any, i: number) => any)): Selection;
-        style(name: string, value: any | ((d: any, i: number) => any), priority?: string): Selection;
-        text(value: string | ((d: any, i: number) => string)): Selection;
-        html(value: string | ((d: any, i: number) => string)): Selection;
+        attr(name: string, 
+            value: any | ((d: any, i: number) => any)):         Selection;
+        style(name: string,
+            value: any | ((d: any, i: number) => any),
+            priority?: string):                                 Selection;
+        text(value: string | ((d: any, i: number) => string)):  Selection;
+        html(value: string | ((d: any, i: number) => string)):  Selection;
     
         // Events
-        on(typenames: string, callback: (d: any, event?: Event | undefined) => void): Selection;
-        call(value: any): Selection;
+        on(typenames: string,
+            callback: 
+            (d: any, event?: Event | undefined) => void):       Selection;
+        call(value: any):                                       Selection;
     
         // Utilities
-        each(callback: (d: any, i: number, nodes: Element[]) => void): Selection;
-        node(): Node;
-        nodes(): Array<Node>;
-        size(): number;
+        each(callback: 
+            (d: any, i: number, nodes: Element[]) => void):     Selection;
+        node():                                                 Node;
+        nodes():                                                Array<Node>;
+        size():                                                 number;
     }
 
-    export function select(name: SVGGElement | SVGElement | Selection | string): Selection;
+    export function select(name: SVGGElement 
+        | SVGElement 
+        | Selection 
+        | string):                                              Selection;
 }

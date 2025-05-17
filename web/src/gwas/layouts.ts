@@ -1,12 +1,17 @@
 /**
  * 2025, Palmer Lab at UCSD
+ * 
+ * Recall that in locus zoom a layout is an object, it contains the global
+ * settings of a figure, and the list of panels.  Each panel is a plot, and
+ * specifies plot level settings.  Each panel has a data_layer which defines
+ * the data expected and how to plot it. 
  */
 
 const HEIGHT = 300;
 const WIDTH = 900;
 const HEIGHT_CHR_OVERVIEW = 150;
 
-/** Construct layout to be used for plotting
+/** Construct layout to be used for association plots
  *
  *  @param{Object} state Object is defined by: 
  *      {

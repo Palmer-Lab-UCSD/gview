@@ -8,8 +8,10 @@ let plotListener = null
 let plots = []
 */
 
+// import PlabLocusZoom from ".";
+
 import * as PlabGwas from "./gwas/services.js";
-import { PlabGenes } from "./gwas/genes.js"
+import { PlabGenes } from "./gwas/gene.js"
 import * as PlabPlots from "./gwas/plots.js";
 
 LocusZoom.DataLayers.add("plab_genes", PlabGenes)

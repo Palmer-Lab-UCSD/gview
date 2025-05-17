@@ -13,41 +13,41 @@ import (
 type GeneAnnotationRecord struct {
 	Id                uint64 `json:"id"`
 	Chr               string `json:"chr"`
-	Refseq            string
-	Feature           string
+	Refseq            string `json:"refSeq"`
+	Feature           string `json:"feature"`
 	Start             uint64 `json:"start"`
 	End               uint64 `json:"end"`
 	Strand            string `json:"strand"`
-	GeneId            string
-	TranscriptId      string
-	Product           string
-	GeneBiotype       string
-	TranscriptBiotype string
+	GeneId            string `json:"geneId"`
+	TranscriptId      string `json:"transcriptId"`
+	Product           string `json:"product"`
+	GeneBiotype       string `json:"geneBiotype"`
+	TranscriptBiotype string `json:"transcriptBiotype"`
 }
 
 type GwasLocusRecord struct {
-	Chr        string
-	Snp        string
-	Pos        uint
-	Allele1    string
-	Allele2    string
-	Freq       float32
-	EffectSize float32
-	StdError   float32
-	Pval       float64
-	NegLogPval float64
+	Chr        string  `json:"chr"`
+	Snp        string  `json:"snp"`
+	Pos        uint    `json:"pos"`
+	Allele1    string  `json:"allele_1"`
+	Allele2    string  `json:"allele_2"`
+	Freq       float32 `json:"freq"`
+	EffectSize float32 `json:"effectSize"`
+	StdError   float32 `json:"stdError"`
+	Pval       float64 `json:"pval"`
+	NegLogPval float64 `json:"negLogPval"`
 }
 
 type GwasChrWideViewRecord struct {
-	Chr        string
-	Pos        uint64
-	NegLogPval float32
+	Chr        string  `json:"chr"`
+	Pos        uint64  `json:"pos"`
+	NegLogPval float32 `json:"negLogPval"`
 }
 
 type ChrStats struct {
-	Length uint64
-	Start  uint64
-	End    uint64
+	Length uint64 `json:"length"`
+	Start  uint64 `json:"start"`
+	End    uint64 `json:"end"`
 }
 
 // OrgDb is an alias of sql.DB.  I wanted to include this to

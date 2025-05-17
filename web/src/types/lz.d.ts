@@ -47,14 +47,17 @@ declare namespace LocusZoom {
         parent:                                 Panel
         tracks:                                 number;
         gene_track_index:                       NumericKeyObj<any>;
-        layout:                                 GeneLayerSettings;
-        applyBehaviors:                         Behavior;
 
         state:                                  state;
+        layout:                                 GeneLayerSettings;
+
         svg:                                    PlotElements;
-        // data:                                   Array<Svg>;
+
+        applyBehaviors:                         Behavior;
+
 
         _applyFilters():                       Array<GeneTrackRecord>;
+
         getElementId(element: HTMLElement | d3.Selection):     string;
 
         emit(event_type: string, element:d3.Selection , val: boolean):   DataLayer;
@@ -64,6 +67,7 @@ declare namespace LocusZoom {
 
     interface DataLayerStruct {
         get(name: string): typeof DataLayer;
+        add(name: string, data_layer: typeof DataLayer): void;
     }
 
     interface state {
@@ -84,17 +88,10 @@ declare namespace LocusZoom {
 
 }
 
-declare type config = {
-    cache_enabled: boolean;
-    cache_size: number;
-    url: string;
-    prefix_namespace: boolean;
-    limit_fields: null | Array<string>;
-}
-
-declare interface GeneTrackRecord extends GeneAnnotationRecord {
-    display_range:      GeneDisplay;
-    display_domain:     GeneDisplay;
-    track:              number;
-    parent:             any;
-}
+// declare type config = {
+//     cache_enabled: boolean;
+//     cache_size: number;
+//     url: string;
+//     prefix_namespace: boolean;
+//     limit_fields: null | Array<string>;
+// }

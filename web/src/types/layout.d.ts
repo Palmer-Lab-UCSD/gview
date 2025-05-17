@@ -28,6 +28,9 @@ declare interface MouseBehaviors {
     onclick:        Array<MouseSettings>;
 };
 
+/**
+ * Defines the type for a gene track data_layer element
+ */
 declare interface GeneLayerSettings {
     stroke:                     string;
     color:                      string;
@@ -39,26 +42,21 @@ declare interface GeneLayerSettings {
     tooltip_positioning:        "horizontal" | "vertical" | "top" | "bottom" | "left" | "right";
     tooltip:                    GeneTooltip;
     behaviors:                  MouseBehaviors;
-    start_field?:               string;
-    end_field?:                 string;
-    gene_name_field?:           string;
 };
 
-
-declare interface AssocState {
-    projectId:      string;
-    phenotype:      string;
-    chr:            string;
-    start:          string;
-    end:            string;
-    build?:         string;
-}
 
 declare interface ChrState {
     projectId:      string;
     phenotype:      string;
     chr:            string;
+    build?:         string;
 }
+
+declare interface AssocState extends ChrState {
+    start:          string;
+    end:            string;
+}
+
 
 declare interface AxisSettings {
    field:           string;
@@ -68,7 +66,9 @@ declare interface AxisSettings {
    min_extent?:     Array<number>;
 }
 
-
+/**
+ * Define the actual data_layer elements
+ */
 interface BaseLayer {
     id:             string;
     type:           string;
@@ -101,6 +101,10 @@ declare interface LineLayer {
     offset:         number;
 }
 
+
+/**
+ * Define panels
+ */
 
 interface Interaction {
     drag_background_to_pan: boolean;

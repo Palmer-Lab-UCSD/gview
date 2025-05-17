@@ -11,14 +11,23 @@ declare interface GeneAnnotationRecord {
     // elements expected from data base query
 	id:                 number;
 	chr:                string;
-	Refseq:             string;
-	Feature:            string;
+	refseq:             string;
+	feature:            string;
 	start:              number; 
 	end:                number; 
 	strand:             string;
-	GeneId:             string;
-	TranscriptId:       string;
-	Product:            string;
-	GeneBiotype:        string;
-	TranscriptBiotype:  string;
+	geneId:             string;
+	transcriptId:       string;
+	product:            string;
+	geneBiotype:        string;
+	transcriptBiotype:  string;
+}
+
+
+
+declare interface GeneTrackRecord extends GeneAnnotationRecord {
+    display_range:      GeneDisplay;
+    display_domain:     GeneDisplay;
+    track:              number;
+    parent:             any;
 }

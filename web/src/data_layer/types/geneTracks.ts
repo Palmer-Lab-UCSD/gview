@@ -1,67 +1,87 @@
 /**
- * This code was copied from https://statgen.github.io/locuszoom/docs/api/components_data_layer_genes.js.html
- * and then pruned and edited to be compatible with my data: Chr, Start, End, GeneId.
+ * This defines the gene track data_layer.  The data_layer is implemented
+ * by the PlabGenes class.
+ * 
+ * 2025, PalmerLab
+ * 
+ * This code is a simplification of that at
+ * https://statgen.github.io/locuszoom/docs/api/components_data_layer_genes.js.html
+ * , distributed under the MIT License https://github.com/statgen/locuszoom,
+ * and port to TypeScript.
+ * 
  */
+
+const defaultGeneTooltip: GeneTooltip = {
+    closeable:  false,
+    show:       {or: ["highlighted", "selected"]},
+    hide:       {and: ["unhighlighted", "unselected"]},
+    html:       "<div style='padding: 5px; border-radius: 3px;'>"
+                + "<em><strong>{{genes:GeneId}}</strong></em><br>"
+                + "Refseq chromosome id: {{genes:Chr}}<br>"
+                + "Position: {{genes:Start}}-{{genes:End}}<br>"
+                + "Type: {{genes:GeneBiotype}}"
+                + "</div>"
+};
+
+const defaultGeneMouseBehavior: MouseBehaviors = {
+    onmouseover: [
+        { action: "set", status: "highlighted" }
+    ],
+    onmouseout: [
+        { action: "unset", status: "highlighted" }
+    ],
+    onclick: [
+        { action: "toggle", status: "selected", exclusive: true }
+    ]
+};
 
 const default_layout: GeneLayerSettings = {
     // Optionally specify different fill and stroke properties
-    stroke: 'rgb(54, 54, 150)',
-    color: '#363696',
-    label_font_size: 15,
-    label_exon_spacing: 3,
-    exon_height: 10,
-    bounding_box_padding: 3,
+    stroke:                 'rgb(54, 54, 150)',
+    color:                  '#363696',
+    label_font_size:        15,
+    label_exon_spacing:     3,
+    exon_height:            10,
+    bounding_box_padding:   3,
     track_vertical_spacing: 5,
-    tooltip_positioning: 'top',
-    tooltip: {
-        closeable: false,
-        show: {or: ["highlighted", "selected"]},
-        hide: {and: ["unhighlighted", "unselected"]},
-        html: "<div style='padding: 5px; border-radius: 3px;'>" +
-              "<em><strong>{{genes:GeneId}}</strong></em><br>" +
-              "Refseq chromosome id: {{genes:Chr}}<br>" +
-              "Position: {{genes:Start}}-{{genes:End}}<br>" +
-              "Type: {{genes:GeneBiotype}}" +
-              "</div>"
-    },
-    behaviors: {
-        onmouseover: [
-            { action: "set", status: "highlighted" }
-        ],
-        onmouseout: [
-            { action: "unset", status: "highlighted" }
-        ],
-        onclick: [
-            { action: "toggle", status: "selected", exclusive: true }
-        ]
-    }
+    tooltip_positioning:    'top',
+    tooltip:                defaultGeneTooltip,
+    behaviors:              defaultGeneMouseBehavior
 };
+
+
+
 /**
- * Genes Data Layer
- * Implements a data layer that will render gene tracks
+ * Defines the gene track data_layer `type`
+ * 
  * @alias module:LocusZoom_DataLayers~genes
  * @see {@link module:LocusZoom_DataLayers~BaseDataLayer} for additional layout options
  */
-class PlabGenes extends LocusZoom.DataLayers.get("BaseDataLayer") {
-    /**
-     * See defined types
-     */
-    constructor(layout: GeneLayerSettings, parent: LocusZoom.Panel | null) {
+class GeneTracks extends LocusZoom.DataLayers.get("BaseDataLayer") {
+
+    constructor(layout: GeneLayerSettings, parent: LocusZoom.Panel) {
+        if (parent === null)
+            throw new Error("parent node is null.")
+
         layout = LocusZoom.Layouts.merge(layout, default_layout);
         super(layout, parent);
         /**
-         * An internal counter for the number of tracks in the data layer. Used as an internal counter for looping
-         *   over positions / assignments
+         * An internal counter for the number of tracks in the data layer. Used as an 
+         * internal counter for looping over positions / assignments
+         *   
          * @protected
          * @member {number}
          */
         this.tracks = 1;
+
         /**
-         * Store information about genes in dataset, in a hash indexed by track number: {track_number: [gene_indices]}
+         * Store information about genes in dataset, in a hash indexed by track number: 
+         * {track_number: [gene_indices]}
          * @member {Object.<Number, Array>}
          */
         this.gene_track_index = { 1: [] };
     }
+
     /**
      * Generate a statusnode ID for a given element
      * @override
@@ -379,5 +399,4 @@ class PlabGenes extends LocusZoom.DataLayers.get("BaseDataLayer") {
     }
 }
 
-
-export { PlabGenes };
+export { GeneTracks };
