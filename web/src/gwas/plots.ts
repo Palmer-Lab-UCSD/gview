@@ -1,10 +1,10 @@
 /**
  * 2025, Palmer Lab at UCSD
  */
-import * as PlabApiAdapters from "./adapters.js";
-import * as PlabPanels from "./panels.js";
-import * as PlabLayouts from "./layouts.js"
-import { ui } from "./state.js"
+import * as PlabApiAdapters from "../data_sources/index.js";
+import * as PlabPanels from "../panels/index.js";
+import * as PlabLayouts from "./layouts.js";
+import { ui } from "./state.js";
 
 
 const URLS = {

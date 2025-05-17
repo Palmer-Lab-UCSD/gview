@@ -1,23 +1,18 @@
 /**
-import * as PlabGwas from "./gwas.js";
-import { uiState } from "./gwas/uiState.js";
-
-console.log(LocusZoom)
-console.log(PlabGenes)
-let plotListener = null
-let plots = []
 */
 
-// import PlabLocusZoom from ".";
 
-import { QueryElements,
+import { 
+    QueryElements,
     queryDataSourcesFromSelectors,
-    createListeners } from "./services.js";
-import { PlabDataLayers } from "../data_layer";
+    createListeners 
+} from "./services.js";
 
-import * as PlabPlots from "./gwas/plots.js";
+import { PlabDataLayers } from "../data_layer/index.js";
 
-LocusZoom.DataLayers.add("plab_genes", PlabDataLayers.DataTypes.GeneTracks);
+import * as PlabPlots from "./plots.js";
+
+LocusZoom.DataLayers.add("plab_genes", PlabDataLayers.DataType.GeneTracks);
 
 /**
  * Query elements are those that the user manipulates to specify
