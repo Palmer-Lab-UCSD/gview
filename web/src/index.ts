@@ -1,13 +1,11 @@
 
 
-import { PlabDataLayers as DataLayers } from "./data_layer";
-import { PlabAdapters as Adapters } from "./data_sources";
-import { PlabPanels as Panels } from "./panels";
+import { PlabDataLayers } from "./data_layer";
+import { PlabAdapters } from "./data_sources";
+import { PlabPanels } from "./panels";
 
-const PlabLocusZoom = {
-    DataLayers,
-    Adapters,
-    Panels
+export const PlabLocusZoom = {
+    PlabDataLayers,
+    PlabAdapters,
+    PlabPanels
 }
-
-export default { PlabLocusZoom };

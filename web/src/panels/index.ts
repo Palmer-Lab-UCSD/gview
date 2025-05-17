@@ -10,11 +10,8 @@ import { chrAssoc } from "./chrAssoc";
 import { geneTracks } from "./geneTracks.js";
 
 
-const PlabPanels = {
+export const PlabPanels = {
     locusAssoc,
     chrAssoc,
     geneTracks,
 }
-
-
-export default { PlabPanels };

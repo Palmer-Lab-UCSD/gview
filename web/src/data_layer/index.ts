@@ -6,11 +6,9 @@ import { gene } from "./gene.js";
 import { significance } from "./line.js";
 
 
-const PlabDataLayers = {
+export const PlabDataLayers = {
     chrOverview,
     associationPvalues,
     gene,
     significance 
 };
-
-export default PlabDataLayers;
