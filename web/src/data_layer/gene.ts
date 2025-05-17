@@ -7,7 +7,7 @@
 
 
 
-function gene(namespace: string): GeneLayer {
+function gene(namespace: string): GeneTrackLayer {
     return {
         namespace: { 'genes': namespace },
         id: 'gene_tracks',

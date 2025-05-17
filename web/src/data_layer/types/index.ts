@@ -1,6 +1,6 @@
 
-import { GeneTracks } from "./geneTracks.js";
+import { GeneTracks } from "./geneTracks";
 
-export const PlabDataLayerTypes = {
+export const DataType = {
     GeneTracks,
 };

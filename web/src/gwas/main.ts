@@ -10,15 +10,28 @@ let plots = []
 
 // import PlabLocusZoom from ".";
 
-import * as PlabGwas from "./gwas/services.js";
-import { PlabGenes } from "./gwas/gene.js"
+import { QueryElements,
+    queryDataSourcesFromSelectors,
+    createListeners } from "./services.js";
+import { PlabDataLayers } from "../data_layer";
+
 import * as PlabPlots from "./gwas/plots.js";
 
-LocusZoom.DataLayers.add("plab_genes", PlabGenes)
+LocusZoom.DataLayers.add("plab_genes", PlabDataLayers.DataTypes.GeneTracks);
 
+/**
+ * Query elements are those that the user manipulates to specify
+ * a data base query.
+ * 
+ * Recall that QueryElements is simply a JavaScript Map in which I 
+ * limit the key and values to string and DataHtmlSelectElement, 
+ * respecitively.
+ */
+let queryElements = new QueryElements();
 
-let queryElements = new PlabGwas.QueryElements();
-
+/**
+ * Bind all query elements to respective HTML select elements
+ */
 queryElements.set("projectId",
     document.getElementById("projectId") as DataHtmlSelectElement);
 queryElements.set("phenotype",
@@ -26,23 +39,34 @@ queryElements.set("phenotype",
 queryElements.set("chr",
     document.getElementById("chr") as DataHtmlSelectElement);
 
+
 // TODO: How do I reset all options under page refresh
-let tmp = queryElements.get("projectId") as DataHtmlSelectElement | undefined;
+/**
+ * Bind project id specification event api call
+ */
+let tmp: DataHtmlSelectElement | undefined = queryElements.get("projectId"); 
 if (tmp === undefined)
     throw new Error("Project Id selector not defined")
-tmp.eventProcessor = PlabGwas.queryDataSourcesFromSelectors("/api/gwas/phenotypes",
+tmp.eventProcessor = queryDataSourcesFromSelectors("/api/gwas/phenotypes",
     [],
     "projectId",
     ["phenotype", "chr"]);
 
+
+/**
+ * Bind phenotype specification event to api call
+ */
 tmp = queryElements.get("phenotype");
 if (tmp === undefined)
     throw new Error("Phenotype selector not defined");
-tmp.eventProcessor = PlabGwas.queryDataSourcesFromSelectors("/api/gwas/chr",
+tmp.eventProcessor = queryDataSourcesFromSelectors("/api/gwas/chr",
     ["projectId"],
     "phenotype",
     ["chr"]);
 
+/**
+ * bind chr specification event to api call
+ */
 tmp = queryElements.get("chr");
 if (tmp === undefined)
     throw new Error("chr selector not defined");
@@ -54,4 +78,5 @@ tmp.eventProcessor = PlabPlots.initAll("projectId",
         locusOfInterest: "lzLocusOfInterest"
     });
 
-PlabGwas.createListeners(queryElements);
+
+createListeners(queryElements);

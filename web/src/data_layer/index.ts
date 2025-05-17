@@ -1,14 +1,14 @@
 
 
-import { chrOverview } from "./chrOverview.js";
-import { associationPvalues } from "./associationPvalues.js";
-import { gene } from "./gene.js";
-import { significance } from "./line.js";
+import { associationPvalues } from "./associationPvalues";
+import  { gene } from "./gene";
+import { significance } from "./line";
+import { DataType } from "./types";
 
 
 export const PlabDataLayers = {
-    chrOverview,
     associationPvalues,
     gene,
-    significance 
+    significance,
+    DataType
 };

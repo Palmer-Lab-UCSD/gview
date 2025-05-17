@@ -5,9 +5,9 @@
  */
 // import * as PlabDataLayers from "./data_layers.js";
 
-import { locusAssoc } from "./locusAssoc.js";
+import { locusAssoc } from "./locusAssoc";
 import { chrAssoc } from "./chrAssoc";
-import { geneTracks } from "./geneTracks.js";
+import { geneTracks } from "./geneTracks";
 
 
 export const PlabPanels = {
