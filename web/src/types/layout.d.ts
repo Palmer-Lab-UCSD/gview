@@ -67,42 +67,6 @@ declare interface AxisSettings {
 }
 
 /**
- * Define the actual data_layer elements
- */
-interface BaseLayer {
-    id:             string;
-    type:           string;
-    id_field:       string;
-}
-
-interface NameSpaceLayer extends BaseLayer {
-    namespace: Record<string, string>;
-}
-
-declare interface AssocDataLayer extends NameSpaceLayer {
-    x_axis:         AxisSettings;
-    y_axis:         AxisSettings;
-    point_size?:    number;
-    color?:         Array<string>;
-}
-
-
-declare interface GeneLayer extends NameSpaceLayer {
-    gene_name_field: 'genes:GeneId',    // required
-    start_field: 'genes:Start',         // required
-    end_field: 'genes:End',             // required
-    strand_field: "genes:Strand"        // required
-}
-
-declare interface LineLayer {
-    id:             string;
-    type:           string;
-    orientation:    string;
-    offset:         number;
-}
-
-
-/**
  * Define panels
  */
 

@@ -102,8 +102,9 @@ class GeneTracks extends LocusZoom.DataLayers.get("BaseDataLayer") {
             + this.layout.track_vertical_spacing;
     }
     /**
-     * Ensure that genes in overlapping chromosome regions are positioned so that parts of different genes do not
-     *   overlap in the view. A track is a row used to vertically separate overlapping genes.
+     * Ensure that genes in overlapping chromosome regions are positioned so 
+     * that parts of different genes do not
+     * overlap in the view. A track is a row used to vertically separate overlapping genes.
      * @returns {Genes}
      */
     assignTracks(data:Array<GeneTrackRecord>): Array<GeneTrackRecord> {
@@ -136,18 +137,21 @@ class GeneTracks extends LocusZoom.DataLayers.get("BaseDataLayer") {
         // data is an array, where each element are data from the webservice database
         // corresponding to a gene
         return data
-            // Filter out any genes that are fully outside the region of interest. This allows us to use cached data
-            //  when zooming in, without breaking the layout by allocating space for genes that are not visible.
+            // Filter out any genes that are fully outside the region of interest. This allows us to
+            // use cached data when zooming in, without breaking the layout by allocating space for
+            // genes that are not visible.
+            //
+            // Note that state is a class attribute set in the constructor
             .filter((item) => !(item.end < this.state.start) && !(item.start > this.state.end))
             .map((item) => {
-                // Determine display range start and end, based on minimum allowable gene display width, bounded by what we can see
-                // (range: values in terms of pixels on the screen)
+                // Determine display range start and end, based on minimum allowable gene display width,
+                // bounded by what we can see (range: values in terms of pixels on the screen)
                 item.display_range = {
                     start: this.parent.x_scale(Math.max(item.start, this.state.start)),
                     end:   this.parent.x_scale(Math.min(item.end, this.state.end))
                 };
 
-                item.display_range.label_width = _getLabelWidth(item.GeneId, this.layout.label_font_size);
+                item.display_range.label_width = _getLabelWidth(item.geneId, this.layout.label_font_size);
                 item.display_range.width = item.display_range.end - item.display_range.start;
 
                 item.display_range.text_anchor = 'middle';

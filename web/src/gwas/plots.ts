@@ -1,9 +1,9 @@
 /**
  * 2025, Palmer Lab at UCSD
  */
-import * as PlabApiAdapters from "../data_sources/index.js";
-import * as PlabPanels from "../panels/index.js";
-import * as PlabLayouts from "./layouts.js";
+import { PlabApiAdapters } from "../data_sources/index.js";
+import { PlabPanels } from "../panels/index.js";
+import  * as PlabLayouts from "./layouts.js";
 import { ui } from "./state.js";
 
 
@@ -137,7 +137,7 @@ async function makeLocusPlot(options: URLSearchParams,
                 "Pos",
                 "NegLogPval",
                 sigVal),
-            PlabPanels.genes("gene")
+            PlabPanels.geneTracks("gene")
         ]
     );
 
