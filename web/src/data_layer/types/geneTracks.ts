@@ -87,7 +87,7 @@ class GeneTracks extends LocusZoom.DataLayers.get("BaseDataLayer") {
      * @override
      * @returns {String}
      */
-    getElementStatusNodeId(element: d3.Selection): string {
+    getElementStatusNodeId(element: GeneTrackRecord): string {
         return `${this.getElementId(element)}-statusnode`;
     }
     /**
@@ -198,7 +198,8 @@ class GeneTracks extends LocusZoom.DataLayers.get("BaseDataLayer") {
                 };
                 item.display_domain.width = item.display_domain.end - item.display_domain.start;
 
-                // Using display range/domain data generated above cast each gene to tracks such that none overlap
+                // Using display range/domain data generated above
+                // cast each gene to tracks such that none overlap
                 item.track = null;
                 let potential_track = 1;
                 while (item.track === null) {
@@ -233,27 +234,37 @@ class GeneTracks extends LocusZoom.DataLayers.get("BaseDataLayer") {
      */
     render(): void {
         const self = this;
+
         // Apply filters to only render a specified set of points
         let track_data: Array<GeneTrackRecord> = this._applyFilters();
         track_data = this.assignTracks(track_data);
 
         let height;
-        // Render gene groups
-        const selection = this.svg.group.selectAll('g.lz-data_layer-genes')
-            .data(track_data, (d: GeneTrackRecord) => d.GeneId);
 
+        // bind data to SVG 'g', group, element. If the group does not exist
+        // on the DOM, the group is still created by not bound to the DOM.
+        // Use the 'enter' selection for binding these nodes to DOM.
+        const selection = this.svg.group.selectAll('g.lz-data_layer-genes')
+            .data(track_data, (d: GeneTrackRecord) => d.geneId);
+
+        // The enter selection is used to bind the data nodes to html elements
+        // remember that .enter() returns only the updated selection object,
+        // not that which is bound to the selection variable
         selection.enter()
             .append('g')
             .attr('class', 'lz-data_layer-genes')
-            .merge(selection)
-            .attr('id', (d: d3.Selection) => this.getElementId(d))
+            .merge(selection)       // need to bind the update selection from .enter() to those that already exist
+            .attr('id', (d: GeneTrackRecord) => this.getElementId(d))
             .each(function(gene: GeneTrackRecord) {
                 const data_layer = gene.parent;
                 // Render gene bounding boxes (status nodes to show selected/highlighted)
                 // Remember that `this` references the DOM 'g' element and not the parent class PlabGenes;
-                const bboxes = d3.select(this: SVGGElement).selectAll('rect.lz-data_layer-genes.lz-data_layer-genes-statusnode')
+                const bboxes = d3.select(this)
+                    .selectAll('rect.lz-data_layer-genes.lz-data_layer-genes-statusnode')
                     .data([gene], (d: GeneTrackRecord) => data_layer.getElementStatusNodeId(d));
+
                 height = data_layer.getTrackHeight() - data_layer.layout.track_vertical_spacing;
+
                 bboxes.enter()
                     .append('rect')
                     .attr('class', 'lz-data_layer-genes lz-data_layer-genes-statusnode')
@@ -264,14 +275,19 @@ class GeneTracks extends LocusZoom.DataLayers.get("BaseDataLayer") {
                     .attr('width', (d: GeneTrackRecord) => d.display_range.width)
                     .attr('height', height)
                     .attr('x', (d: GeneTrackRecord) => d.display_range.start)
-                    .attr('y', (d: GeneTrackRecord) => ((d.track - 1) * data_layer.getTrackHeight()));
+                    .attr('y', (d: GeneTrackRecord) => {
+                        if (d.track === null)
+                            throw new Error("no track")
+                        return (d.track - 1) * data_layer.getTrackHeight();
+                    });
 
                 bboxes.exit()
                     .remove();
 
                 // Render gene boundaries
-                const boundaries = d3.select(this: SVGGElement).selectAll('rect.lz-data_layer-genes.lz-boundary')
-                    .data([gene], (d: GeneTrackRecord) => `${d.GeneId}_boundary`);
+                const boundaries = d3.select(this)
+                    .selectAll('rect.lz-data_layer-genes.lz-boundary')
+                    .data([gene], (d: GeneTrackRecord) => `${d.geneId}_boundary`);
 
                 // FIXME: Make gene text font sizes scalable
                 height = 1;
@@ -285,6 +301,9 @@ class GeneTracks extends LocusZoom.DataLayers.get("BaseDataLayer") {
                     .attr('height', height)
                     .attr('x', (d: GeneTrackRecord) => data_layer.parent.x_scale(d.start))
                     .attr('y', (d: GeneTrackRecord) => {
+                        if (d.track === null)
+                            throw new Error("no track");
+
                         return ((d.track - 1) * data_layer.getTrackHeight())
                             + data_layer.layout.bounding_box_padding
                             + data_layer.layout.label_font_size
@@ -303,7 +322,7 @@ class GeneTracks extends LocusZoom.DataLayers.get("BaseDataLayer") {
 
                 // Render gene labels
                 const labels = d3.select(this).selectAll('text.lz-data_layer-genes.lz-label')
-                    .data([gene], (d: GeneTrackRecord) => `${d.GeneId}_label`);
+                    .data([gene], (d: GeneTrackRecord) => `${d.geneId}_label`);
 
 
                 labels.enter()
@@ -312,11 +331,15 @@ class GeneTracks extends LocusZoom.DataLayers.get("BaseDataLayer") {
                     .merge(labels)
                     .attr('text-anchor', (d: GeneTrackRecord) => d.display_range.text_anchor)
                     .text((d) => {
-                        return (d.strand === "+") ? `${d.GeneId}→` : `←${d.GeneId}`
+                        return (d.strand === "+") ? `${d.geneId}→` : `←${d.geneId}`
                     })
                     .style('font-size', gene.parent.layout.label_font_size)
                     .attr('x', (d: GeneTrackRecord) => {
                         if (d.display_range.text_anchor === 'middle') {
+
+                            if (d.display_range.width === undefined)
+                                throw new Error("width is undefined");
+
                             return d.display_range.start + (d.display_range.width / 2);
                         } else if (d.display_range.text_anchor === 'start') {
                             return d.display_range.start + data_layer.layout.bounding_box_padding;
@@ -324,12 +347,19 @@ class GeneTracks extends LocusZoom.DataLayers.get("BaseDataLayer") {
                             return d.display_range.end - data_layer.layout.bounding_box_padding;
                         }
                     })
-                    .attr('y', (d: GeneTrackRecord) => ((d.track - 1) * data_layer.getTrackHeight())
+                    .attr('y', (d: GeneTrackRecord) => {
+                        if (d.track === null)
+                            throw new Error("no gene track");
+
+                        return (d.track - 1) * data_layer.getTrackHeight()
                         + data_layer.layout.bounding_box_padding
-                        + data_layer.layout.label_font_size,
-                    );
+                        + data_layer.layout.label_font_size;
+                    });
+
+
                 labels.exit()
                     .remove();
+
                 // Render exon rects (first transcript only, for now)
                 // Exons: by default color on gene properties for consistency with the gene boundary track- hence color uses d.parent.parent
                 // const exons = d3.select(this).selectAll('rect.lz-data_layer-genes.lz-gene')
@@ -353,9 +383,9 @@ class GeneTracks extends LocusZoom.DataLayers.get("BaseDataLayer") {
                 // exons.exit()
                 //     .remove();
                 // Render gene click area
-                const clickareas = d3.select(this: PlabGenes)
+                const clickareas = d3.select(this)
                     .selectAll('rect.lz-data_layer-genes.lz-clickarea')
-                    .data([gene], (d: GeneTrackRecord) => `${d.GeneId}_clickarea`);
+                    .data([gene], (d: GeneTrackRecord) => `${d.geneId}_clickarea`);
 
                 height = data_layer.getTrackHeight() - data_layer.layout.track_vertical_spacing;
 
@@ -370,7 +400,10 @@ class GeneTracks extends LocusZoom.DataLayers.get("BaseDataLayer") {
                     .attr('height', height)
                     .attr('x', (d: GeneTrackRecord) => d.display_range.start)
                     .attr('y', (d: GeneTrackRecord) => {
-                        return ((d.track - 1) * data_layer.getTrackHeight())
+                        if (d.track === null)
+                            throw new Error("Gene track not defined.");
+
+                        return ((d.track - 1) * data_layer.getTrackHeight());
                     });
 
                 // Remove old clickareas as needed
@@ -383,7 +416,7 @@ class GeneTracks extends LocusZoom.DataLayers.get("BaseDataLayer") {
 
         // Apply mouse behaviors & events to clickareas
         this.svg.group
-            .on('click.event_emitter', (d: GeneTrackRecord) => { 
+            .on('click.event_emitter', (d: d3.node) => { 
                 this.parent.emit('element_clicked', d, true)
             })
             .call(this.applyBehaviors.bind(this));
@@ -392,7 +425,8 @@ class GeneTracks extends LocusZoom.DataLayers.get("BaseDataLayer") {
     _getTooltipPosition(tooltip) {
 
         const gene_bbox_id = this.getElementStatusNodeId(tooltip.data);
-        const gene_bbox = d3.select(`#${gene_bbox_id}`).node().getBBox();
+        const gene_bbox:d3.BBoxElement = d3.select(`#${gene_bbox_id}`)
+            .node().getBBox();
 
         return {
             x_min: this.parent.x_scale(tooltip.data.display_domain.start),

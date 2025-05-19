@@ -28,6 +28,6 @@ declare interface GeneAnnotationRecord {
 declare interface GeneTrackRecord extends GeneAnnotationRecord {
     display_range:      GeneDisplay;
     display_domain:     GeneDisplay;
-    track:              number;
+    track:              number | null;
     parent:             any;
 }

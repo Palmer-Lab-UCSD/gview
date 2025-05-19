@@ -6,7 +6,15 @@ declare namespace d3 {
         y:  number;
     }
 
-    export interface Node extends Element {
+    export interface node extends Element {
+        data: any;
+        depth:  number;
+        height: number;
+        parent: node;
+        children:   Array<Element>;
+        value?:  any;
+
+        each(callback: (d: node, i: number, nodes: Array<node>) => void): node;
         getBBox():  BBoxElement;
     }
 
@@ -17,8 +25,8 @@ declare namespace d3 {
      * methods.  Second I needed help on the input and return types.
      */
     export interface Selection {
-        select(select: (() => string) | string):                Selection;
-        selectAll(selector: string):                            Selection;
+        select(this: node, select: string | node):              Selection;
+        selectAll(selector: string | node | Array<node>):       Selection;
         filter(filter: string,
             value: string 
             | number 
@@ -38,7 +46,7 @@ declare namespace d3 {
     
         // Attributes and properties
         attr(name: string, 
-            value: any | ((d: any, i: number) => any)):         Selection;
+            value?: any | ((d: any, i: number) => any)):         Selection;
         style(name: string,
             value: any | ((d: any, i: number) => any),
             priority?: string):                                 Selection;
@@ -54,8 +62,8 @@ declare namespace d3 {
         // Utilities
         each(callback: 
             (d: any, i: number, nodes: Element[]) => void):     Selection;
-        node():                                                 Node;
-        nodes():                                                Array<Node>;
+        node():                                                 node;
+        nodes():                                                Array<node>;
         size():                                                 number;
     }
 

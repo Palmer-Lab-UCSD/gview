@@ -58,7 +58,7 @@ declare namespace LocusZoom {
 
         _applyFilters():                       Array<GeneTrackRecord>;
 
-        getElementId(element: HTMLElement | d3.Selection):     string;
+        getElementId(element: GeneTrackRecord):     string;
 
         emit(event_type: string, element:d3.Selection , val: boolean):   DataLayer;
         resolveScalableParameter(option_layout: string, element_data: GeneTrackRecord, data_index: number):  GeneTrackRecord
