@@ -11,7 +11,7 @@ declare namespace d3 {
         depth:  number;
         height: number;
         parent: node;
-        children:   Array<Element>;
+        children:   Array<node>;
         value?:  any;
 
         each(callback: (d: node, i: number, nodes: Array<node>) => void): node;

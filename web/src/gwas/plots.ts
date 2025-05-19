@@ -3,6 +3,7 @@
  */
 import { PlabApiAdapters } from "../data_sources/index.js";
 import { PlabPanels } from "../panels/index.js";
+import { PlabDataLayers } from "../data_layer/index.js";
 import  * as PlabLayouts from "./layouts.js";
 import { ui } from "./state.js";
 
@@ -137,7 +138,7 @@ async function makeLocusPlot(options: URLSearchParams,
                 "Pos",
                 "NegLogPval",
                 sigVal),
-            PlabPanels.geneTracks("gene")
+            PlabPanels.geneTracks([PlabDataLayers.gene("gene")])
         ]
     );
 
@@ -174,10 +175,23 @@ async function getChrInfo(options: URLSearchParams): Promise<ChrInfoPlots> {
     return response.json();
 }
 
+
+/**
+ * Instantiate association plots and gene tracks
+ * 
+ * @param {string} htmlIdForProjectId 
+ * @param {string} htmlIdForPhenotype 
+ * @param {string} htmlIdForChr 
+ * @param {object} htmlIdsForPlots 
+ * @returns (QueryElements) => Promise<void>
+ */
 function initAll(htmlIdForProjectId: string,
         htmlIdForPhenotype: string,
         htmlIdForChr: string,
-        htmlIdsForPlots: { chrOverview: string, locusOfInterest: string}): (queryElements: QueryElements) => Promise<void> {
+        htmlIdsForPlots: { 
+            chrOverview: string,
+            locusOfInterest: string
+        }): (queryElements: QueryElements) => Promise<void> {
 
     return async function g(queryElements: QueryElements): Promise<void> {
 

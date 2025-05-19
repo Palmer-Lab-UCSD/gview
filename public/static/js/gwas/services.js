@@ -1,10 +1,16 @@
+"use strict";
 /** Data source queries from selectors
  *
  * 2025, Palmer Lab at UCSD
  *
  */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.QueryElements = void 0;
+exports.queryDataSourcesFromSelectors = queryDataSourcesFromSelectors;
+exports.createListeners = createListeners;
 class QueryElements extends Map {
 }
+exports.QueryElements = QueryElements;
 ;
 /** Reset HTML selector options
  *
@@ -94,4 +100,3 @@ function createListeners(queryElements) {
         });
     }
 }
-export { QueryElements, queryDataSourcesFromSelectors, createListeners };

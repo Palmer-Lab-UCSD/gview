@@ -258,7 +258,7 @@ class GeneTracks extends LocusZoom.DataLayers.get("BaseDataLayer") {
             .attr('class', 'lz-data_layer-genes')
             .merge(selection)       // need to bind the update selection from .enter() to those that already exist
             .attr('id', (d: GeneTrackRecord) => this.getElementId(d))
-            .each(function(gene: GeneTrackRecord) {
+            .each(function(this: SVGGElement, gene: GeneTrackRecord) {
                 const data_layer = gene.parent;
                 // Render gene bounding boxes (status nodes to show selected/highlighted)
                 // Remember that `this` references the DOM 'g' element and not the parent class PlabGenes;

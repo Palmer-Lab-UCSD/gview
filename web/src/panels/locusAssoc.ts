@@ -1,7 +1,7 @@
 
 
 import { assocBase } from "./assocBase.js";
-
+import { PlabDataLayers } from "../data_layer/index.js";
 
 // TODO: Figure out type for sigVal
 /**

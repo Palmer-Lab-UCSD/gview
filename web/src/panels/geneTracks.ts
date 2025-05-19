@@ -2,7 +2,7 @@
 import { constants } from "./constants.js";
 
 // TODO define array elment types
-function geneTracks(dataLayers: Array<any>): PanelGene {
+function geneTracks(dataLayers: Array<GeneTrackLayer>): PanelGene {
     return {
         id: "gene_tracks",
         height: constants.HEIGHT_GENE_ANNOTATION,

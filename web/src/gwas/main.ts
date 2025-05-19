@@ -1,6 +1,7 @@
 /**
-*/
-
+ * Entry point for visualization 
+ * 
+ */
 
 import { 
     QueryElements,
@@ -25,46 +26,37 @@ LocusZoom.DataLayers.add("plab_genes", PlabDataLayers.DataType.GeneTracks);
 let queryElements = new QueryElements();
 
 /**
- * Bind all query elements to respective HTML select elements
+ * Set projectId selector
  */
-queryElements.set("projectId",
-    document.getElementById("projectId") as DataHtmlSelectElement);
-queryElements.set("phenotype",
-    document.getElementById("phenotype") as DataHtmlSelectElement);
-queryElements.set("chr",
-    document.getElementById("chr") as DataHtmlSelectElement);
 
-
-// TODO: How do I reset all options under page refresh
-/**
- * Bind project id specification event api call
- */
-let tmp: DataHtmlSelectElement | undefined = queryElements.get("projectId"); 
-if (tmp === undefined)
-    throw new Error("Project Id selector not defined")
+let tmp: DataHtmlSelectElement = document.getElementById("projectId") as DataHtmlSelectElement;
+if (tmp === null)
+    throw new Error("No projectId");
 tmp.eventProcessor = queryDataSourcesFromSelectors("/api/gwas/phenotypes",
     [],
     "projectId",
     ["phenotype", "chr"]);
+queryElements.set("projectId", tmp);
 
 
-/**
- * Bind phenotype specification event to api call
+/** 
+ * Set phenotype selector 
  */
-tmp = queryElements.get("phenotype");
-if (tmp === undefined)
-    throw new Error("Phenotype selector not defined");
+tmp = document.getElementById("phenotype") as DataHtmlSelectElement;
+if (tmp === null)
+    throw new Error("phenootype not defined")
 tmp.eventProcessor = queryDataSourcesFromSelectors("/api/gwas/chr",
     ["projectId"],
     "phenotype",
     ["chr"]);
+queryElements.set("phenotype", tmp);
 
 /**
- * bind chr specification event to api call
+ * Set chromosome
  */
-tmp = queryElements.get("chr");
-if (tmp === undefined)
-    throw new Error("chr selector not defined");
+tmp = document.getElementById("chr") as DataHtmlSelectElement;
+if (tmp === null)
+    throw new Error("chr not specified")
 tmp.eventProcessor = PlabPlots.initAll("projectId",
     "phenotype",
     "chr",
@@ -72,6 +64,7 @@ tmp.eventProcessor = PlabPlots.initAll("projectId",
         chrOverview: "lzChrOverview",
         locusOfInterest: "lzLocusOfInterest"
     });
+queryElements.set("chr", tmp);
 
 
 createListeners(queryElements);

@@ -20,13 +20,18 @@ declare namespace LocusZoom {
         get(name: string): typeof Adapter
     }
 
+    interface x_scale {
+        (val: number): number;
+        invert(val: number): number;
+    }
+
     interface Panel {
         id:                     null | string;
         height:                 null | number;
         data_layers:            Array<number>;
 
-        x_scale(val: number):           number;
-        emit(eventName: string, element: Event, val: boolean): Panel;
+        x_scale:                x_scale;
+        emit(eventName: string, d: GeneTrackRecord, val: boolean): Panel;
         call(fn: (val: any) => any): Panel;
     }
 

@@ -1,10 +1,49 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.makeChrPlot = makeChrPlot;
+exports.makeLocusPlot = makeLocusPlot;
+exports.initAll = initAll;
 /**
  * 2025, Palmer Lab at UCSD
  */
-import * as PlabApiAdapters from "./adapters.js";
-import * as PlabPanels from "./panels.js";
-import * as PlabLayouts from "./layouts.js";
-import { ui } from "./state.js";
+const index_js_1 = require("../data_sources/index.js");
+const index_js_2 = require("../panels/index.js");
+const index_js_3 = require("../data_layer/index.js");
+const PlabLayouts = __importStar(require("./layouts.js"));
+const state_js_1 = require("./state.js");
 const URLS = {
     GET_INIT_POS: '/api/gwas/initPos',
     GET_CHR_OVERVIEW: '/api/gwas/chrOverview',
@@ -39,7 +78,7 @@ const SIG_VAL = 5;
  */
 async function makeChrPlot(options, chrInfo, htmlIdForPlot) {
     const dataNamespace = "assocOverview";
-    const chrOverviewAdapter = new PlabApiAdapters.ChrSubsetAdapter({
+    const chrOverviewAdapter = new index_js_1.PlabApiAdapters.ChrSubsetAdapter({
         url: URLS.GET_CHR_OVERVIEW
     });
     const data_sources = new LocusZoom.DataSources()
@@ -56,9 +95,9 @@ async function makeChrPlot(options, chrInfo, htmlIdForPlot) {
         || state.chr === null)
         throw new Error("Invalid parameters");
     const layout = PlabLayouts.chrAssoc(state, [
-        PlabPanels.chrAssoc(dataNamespace, state.chr, "Pos", "NegLogPval")
+        index_js_2.PlabPanels.chrAssoc(dataNamespace, state.chr, "Pos", "NegLogPval")
     ]);
-    ui.push(LocusZoom.populate(`#${htmlIdForPlot}`, data_sources, layout));
+    state_js_1.ui.push(LocusZoom.populate(`#${htmlIdForPlot}`, data_sources, layout));
 }
 /**
  * Locus of interest plot
@@ -78,10 +117,10 @@ async function makeChrPlot(options, chrInfo, htmlIdForPlot) {
  *  @param {string} id of html tag in which the figure is placed.
 */
 async function makeLocusPlot(options, sigVal, htmlIdForPlot) {
-    const assocAdapter = new PlabApiAdapters.AssocAdapter({
+    const assocAdapter = new index_js_1.PlabApiAdapters.AssocAdapter({
         url: URLS.GET_ASSOC_DATA
     });
-    const geneAdapter = new PlabApiAdapters.GeneAdapter({
+    const geneAdapter = new index_js_1.PlabApiAdapters.GeneAdapter({
         url: URLS.GET_GENE_DATA,
     });
     const data_sources = new LocusZoom.DataSources()
@@ -101,10 +140,10 @@ async function makeLocusPlot(options, sigVal, htmlIdForPlot) {
         || state.end === null)
         throw new Error("Invalid parameters");
     const layout = PlabLayouts.locusAssoc(state, [
-        PlabPanels.locusAssoc("assoc", state.chr, "Pos", "NegLogPval", sigVal),
-        PlabPanels.genes("gene")
+        index_js_2.PlabPanels.locusAssoc("assoc", state.chr, "Pos", "NegLogPval", sigVal),
+        index_js_2.PlabPanels.geneTracks([index_js_3.PlabDataLayers.gene("gene")])
     ]);
-    ui.push(LocusZoom.populate(`#${htmlIdForPlot}`, data_sources, layout));
+    state_js_1.ui.push(LocusZoom.populate(`#${htmlIdForPlot}`, data_sources, layout));
     // plot.on("region_changed",
     //     (event) => {
     //         console.log('LZplot event: ', event)
@@ -128,6 +167,15 @@ async function getChrInfo(options) {
     // remember that response.json() returns a promise
     return response.json();
 }
+/**
+ * Instantiate association plots and gene tracks
+ *
+ * @param {string} htmlIdForProjectId
+ * @param {string} htmlIdForPhenotype
+ * @param {string} htmlIdForChr
+ * @param {object} htmlIdsForPlots
+ * @returns (QueryElements) => Promise<void>
+ */
 function initAll(htmlIdForProjectId, htmlIdForPhenotype, htmlIdForChr, htmlIdsForPlots) {
     return async function g(queryElements) {
         const options = new URLSearchParams();
@@ -157,4 +205,3 @@ function initAll(htmlIdForProjectId, htmlIdForPhenotype, htmlIdForChr, htmlIdsFo
         makeLocusPlot(options, SIG_VAL, htmlIdsForPlots.locusOfInterest);
     };
 }
-export { makeChrPlot, makeLocusPlot, initAll };

@@ -1,20 +1,17 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.assocBase = assocBase;
 /**
- * 
- */
-
-import { constants } from "./constants";
-
-/** 
  * Base requirements for a scatter plot of genetic associations
- * 
+ *
  * @param{String} chr
  */
-function assocBase(chr: string): PanelAssoc {
+function assocBase(chr) {
     return {
         id: "",
-        height: constants.HEIGHT_ASSOC,
-        margin: constants.MARGIN,
-        inner_border: constants.INNER_BORDER,
+        height: HEIGHT_ASSOC,
+        margin: MARGIN,
+        inner_border: INNER_BORDER,
         interaction: {
             drag_background_to_pan: false,
             scroll_to_zoom: false
@@ -32,7 +29,6 @@ function assocBase(chr: string): PanelAssoc {
             }
         },
         data_layers: []
-    }
-};
-
-export { assocBase };
+    };
+}
+;
