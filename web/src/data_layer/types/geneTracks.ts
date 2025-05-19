@@ -233,6 +233,9 @@ class GeneTracks extends LocusZoom.DataLayers.get("BaseDataLayer") {
      * Main render function
      */
     render(): void {
+        // remember that all JavaScript functions have their own 'this', but
+        // arrow functions do not.  So the below is necessary to refer to
+        // the class instance, and that which is defined by the function.
         const self = this;
 
         // Apply filters to only render a specified set of points
@@ -416,13 +419,13 @@ class GeneTracks extends LocusZoom.DataLayers.get("BaseDataLayer") {
 
         // Apply mouse behaviors & events to clickareas
         this.svg.group
-            .on('click.event_emitter', (d: d3.node) => { 
+            .on('click.event_emitter', (d: GeneTrackRecord) => { 
                 this.parent.emit('element_clicked', d, true)
             })
             .call(this.applyBehaviors.bind(this));
     }
 
-    _getTooltipPosition(tooltip) {
+    _getTooltipPosition(tooltip: { data: GeneTrackRecord }) {
 
         const gene_bbox_id = this.getElementStatusNodeId(tooltip.data);
         const gene_bbox:d3.BBoxElement = d3.select(`#${gene_bbox_id}`)
