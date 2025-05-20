@@ -247,19 +247,21 @@ class GeneTracks extends LocusZoom.DataLayers.get("BaseDataLayer") {
         // bind data to SVG 'g', group, element. If the group does not exist
         // on the DOM, the group is still created by not bound to the DOM.
         // Use the 'enter' selection for binding these nodes to DOM.
-        const selection = this.svg.group.selectAll('g.lz-data_layer-genes')
-            .data(track_data, (d: GeneTrackRecord) => d.geneId);
+        const selection: d3.Selection<SVGGElement, GeneTrackRecord>  = this.svg.group.selectAll<SVGGElement, GeneTrackRecord>('g.lz-data_layer-genes')
+            .data<GeneTrackRecord>(track_data, (d: GeneTrackRecord) => d.geneId);
 
         // The enter selection is used to bind the data nodes to html elements
         // remember that .enter() returns only the updated selection object,
-        // not that which is bound to the selection variable
+        // not that which is bound to the selection already
         selection.enter()
             .append('g')
             .attr('class', 'lz-data_layer-genes')
             .merge(selection)       // need to bind the update selection from .enter() to those that already exist
             .attr('id', (d: GeneTrackRecord) => this.getElementId(d))
             .each(function(this: SVGGElement, gene: GeneTrackRecord) {
+
                 const data_layer = gene.parent;
+
                 // Render gene bounding boxes (status nodes to show selected/highlighted)
                 // Remember that `this` references the DOM 'g' element and not the parent class PlabGenes;
                 const bboxes = d3.select(this)

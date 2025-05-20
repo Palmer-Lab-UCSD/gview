@@ -6,16 +6,18 @@ declare namespace d3 {
         y:  number;
     }
 
-    export interface node extends Element {
-        data: any;
+    // d3 extends SVG element 
+    export interface SVGGraphicsElement extends SVGElement {
+        getBBox(): BBoxElement;
+    }
+
+    export interface Node<T> {
+        data: T;
+        parent: Node<T>;
+        children:   Array<Node<T>>;
         depth:  number;
         height: number;
-        parent: node;
-        children:   Array<node>;
         value?:  any;
-
-        each(callback: (d: node, i: number, nodes: Array<node>) => void): node;
-        getBBox():  BBoxElement;
     }
 
     /** 
@@ -24,34 +26,46 @@ declare namespace d3 {
      * I needed help in finding the complete set of properties and 
      * methods.  Second I needed help on the input and return types.
      */
-    export interface Selection {
-        select(this: node, select: string | node):              Selection;
-        selectAll(selector: string | node | Array<node>):       Selection;
+    export interface Selection<GElement extends Element = Element, Datum = any> {
+
+        // d3.Selection specifications
+        select<NewGElement extends Element, 
+            NewDatum>(selector: string):    Selection<NewGElement, NewDatum>;
+        
+        // I the return selection has datum = any because different elements may
+        // with the same SVG element may have different data types
+        selectAll<NewGElement extends Element,
+            NewDatum>(selector: string):    Selection<NewGElement, NewDatum>;
         filter(filter: string,
             value: string 
             | number 
-            | ((d: any) => any)):                               Selection;
+            | ((d: any) => any)):           Selection<GElement, Datum>;
 
-        // Data binding
-        data<T>(data: Array<T>,
-            fn: (d: T) => string):                              Selection;
-        merge(val: Selection):                                  Selection;
 
-        enter():                                                Selection;
-        exit():                                                 Selection;
+        // DOM manipulation, consquently, makes a new d3.Selection 
+        // The second argument is the key function.  Provides reference by key name.
+        data<Datum>(data: Array<Datum>,
+            key: (d: Datum, i: number, nodes: Array<Node<Datum>>) => string):   Selection<GElement, Datum>;
 
-        // DOM manipulation
-        append(name: string):                                   Selection;
-        remove():                                               Selection;
+        merge(val: Selection):                  Selection<Element, any>;
+
+        enter():                        Selection<GElement, Datum>;
+        exit():                         Selection<GElement, Datum>;
+
+        append(name: string):          Selection<GElement, Datum>;
+        remove():                      Selection<GElement, Datum>;
     
-        // Attributes and properties
+        // Manipulate DOM element properties, and not the DOM itself.  This is
+        // returned to facilitate chaining
         attr(name: string, 
-            value?: any | ((d: any, i: number) => any)):         Selection;
+            value?: any | ((d: any, i: number) => any)):        this;
         style(name: string,
             value: any | ((d: any, i: number) => any),
-            priority?: string):                                 Selection;
-        text(value: string | ((d: any, i: number) => string)):  Selection;
-        html(value: string | ((d: any, i: number) => string)):  Selection;
+            priority?: string):                                 this;
+        text(value: string | ((d: any, i: number) => string)):  this;
+        html(value: string | ((d: any, i: number) => string)):  this;
+        each(callback: 
+            (d: any, i: number, nodes: GElement) => void):      this;
     
         // Events
         on(typenames: string,
@@ -59,11 +73,9 @@ declare namespace d3 {
             (d: any, event?: Event | undefined) => void):       Selection;
         call(value: any):                                       Selection;
     
-        // Utilities
-        each(callback: 
-            (d: any, i: number, nodes: Element[]) => void):     Selection;
-        node():                                                 node;
-        nodes():                                                Array<node>;
+
+        node():                                                 Node<Datum>;
+        nodes():                                                Array<Node<Datum>>;
         size():                                                 number;
     }
 
