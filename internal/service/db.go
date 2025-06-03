@@ -4,12 +4,26 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"math"
 	"os"
 
 	_ "github.com/lib/pq"
 	"github.com/palmer-lab-ucsd/gview/internal/config"
 )
+
+type GeneAnnotationRecord struct {
+	Id                uint64 `json:"id"`
+	Chr               string `json:"chr"`
+	Refseq            string
+	Feature           string
+	Start             uint64 `json:"start"`
+	End               uint64 `json:"end"`
+	Strand            string `json:"strand"`
+	GeneId            string
+	TranscriptId      string
+	Product           string
+	GeneBiotype       string
+	TranscriptBiotype string
+}
 
 type GwasLocusRecord struct {
 	Chr        string
@@ -22,6 +36,18 @@ type GwasLocusRecord struct {
 	StdError   float32
 	Pval       float64
 	NegLogPval float64
+}
+
+type GwasChrWideViewRecord struct {
+	Chr        string
+	Pos        uint64
+	NegLogPval float32
+}
+
+type ChrStats struct {
+	Length uint64
+	Start  uint64
+	End    uint64
 }
 
 // OrgDb is an alias of sql.DB.  I wanted to include this to
@@ -84,12 +110,11 @@ func ProcessGwasRecords(rows *sql.Rows) ([]GwasLocusRecord, error) {
 			&tmp.Freq,
 			&tmp.EffectSize,
 			&tmp.StdError,
-			&tmp.Pval)
+			&tmp.Pval,
+			&tmp.NegLogPval)
 		if err != nil {
 			return make([]GwasLocusRecord, 0), err
 		}
-
-		tmp.NegLogPval = -math.Log10(tmp.Pval)
 		output = append(output, tmp)
 	}
 
@@ -151,10 +176,6 @@ func open(dbCfg *config.DatabaseConfig) (*OrgDb, error) {
 		return nil, err
 	}
 	orgDb := &OrgDb{DB: db}
-
-	if err != nil {
-		return nil, err
-	}
 
 	return orgDb, nil
 }
