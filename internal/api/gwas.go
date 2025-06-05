@@ -5,8 +5,8 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/palmer-lab-ucsd/gview/internal/application"
-	"github.com/palmer-lab-ucsd/gview/internal/service"
+	"gview/internal/application"
+	"gview/internal/service"
 )
 
 func gwasAnalysis(w http.ResponseWriter, db *service.OrgDb) error {

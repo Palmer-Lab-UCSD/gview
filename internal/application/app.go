@@ -1,9 +1,9 @@
 package application
 
 import (
-	"github.com/palmer-lab-ucsd/gview/internal/config"
-	"github.com/palmer-lab-ucsd/gview/internal/logger"
-	"github.com/palmer-lab-ucsd/gview/internal/service"
+	"gview/internal/config"
+	"gview/internal/logger"
+	"gview/internal/service"
 )
 
 type Application struct {

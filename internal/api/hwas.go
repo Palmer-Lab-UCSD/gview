@@ -3,7 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
-	"github.com/palmer-lab-ucsd/gview/internal/application"
+	"gview/internal/application"
 )
 
 // TODO

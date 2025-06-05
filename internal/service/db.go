@@ -7,7 +7,7 @@ import (
 	"os"
 
 	_ "github.com/lib/pq"
-	"github.com/palmer-lab-ucsd/gview/internal/config"
+	"gview/internal/config"
 )
 
 type GeneAnnotationRecord struct {

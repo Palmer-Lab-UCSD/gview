@@ -1,6 +1,6 @@
 {
     "RootDir":"",
-    "HostName" : "localhost",
+    "HostName" : "gview.ratgenes.org",
     "Port" : "8000",
     "Api": {
         "MaxGenomicCoordDomain" : 10000000,

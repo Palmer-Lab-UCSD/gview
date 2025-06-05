@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"github.com/palmer-lab-ucsd/gview/internal/config"
+	"gview/internal/config"
 )
 
 type AppLogger struct {
