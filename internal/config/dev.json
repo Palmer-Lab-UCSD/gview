@@ -1,0 +1,59 @@
+{
+    "Environment" : "dev",
+    "HostName" : "localhost",
+    "Port" : "8080",
+    "Links" : {
+        "Internal" : {
+            "Domain" : "localhost",
+            "SignIn" : "/signin",
+            "Css" : {
+                "Index" : "/static/css/index.css",
+                "Site" : "/static/css/site.css",
+                "Locuszooom" : "/static/css/lz.css"
+            },
+            "Js" : {
+                "Gwas" : "static/js/gwas.js",
+                "D3" : "static/js/d3.v7.js"
+            },
+            "Assets" : {
+                "RatAssocIcon" : "/static/assets/rat_assoc_icon.svg",
+                "Favicon" : "/static/assets/favicon.ico",
+                "HomeIcon" : "/static/assets/home.svg"
+            }
+        },
+        "External" : {
+            "Js" : {
+                "D3" : "https://cdn.jsdelivr.net/npm/d3@^5.16.0",
+                "Locuszoom" : "https://cdn.jsdelivr.net/npm/locuszoom@0.14.0/dist/locuszoom.app.min.js"
+            },
+            "Css" : {
+                "Locuszoom" : "https://cdn.jsdelivr.net/npm/locuszoom@0.14.0/dist/locuszoom.css"
+            }
+        }
+    },
+    "Paths": {
+        "MaxGenomicCoordDomain" : 10000000,
+        "Static" : "/var/www/gview.ratgenes.org",
+        "Js" : "/var/www/html/gview.ratgenes.org/js",
+        "Css" : "/var/www/html/gview.ratgenes.org/css",
+        "Templates" : "/var/www/html/gview.ratgenes.org/templates",
+        "Certs" : "/var/cache/gview.ratgenes.org/certs"
+    },
+    "Log": {
+        "Dir": "/var/logs/gview.ratgenes.org",
+        "MaxFileSize": 50000000
+    },
+    "Db": {
+        "Driver" : "postgres",
+        "PasswdEnvName" : "DB_PASSWD",
+        "UserEnvVar" : "DB_UNAME",
+        "Name" : "plab",
+        "Port" : "5432",
+        "HostName" : "localhost",
+        "SslMode" : "disable",
+        "SslCert": "",
+        "SslKey" : "",
+        "SslRootCert": "",
+        "ConnectionTimeOut": ""
+    }
+}

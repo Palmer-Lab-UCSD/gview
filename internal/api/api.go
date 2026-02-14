@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"gview/internal/application"
-	"gview/internal/service"
+	"github.com/Palmer-Lab-UCSD/gview/internal/application"
+	"github.com/Palmer-Lab-UCSD/gview/internal/service"
 )
 
 func processChrWideSubset(w http.ResponseWriter,

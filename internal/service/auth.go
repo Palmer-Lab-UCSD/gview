@@ -2,10 +2,8 @@ package service
 
 import (
 	"context"
-	"github.com/coreos/go-oidc"
-	"github.com/golang-jwt/jwt/v4"
-	"golang.org/x/oauth2"
     "crypto/rand"
+    "golang.org/x/crypto/bcrypt"
 	"log"
 	"os"
 )
@@ -50,4 +48,5 @@ func init() {
 		Endpoint:     provider.Endpoint(),
 		Scopes:       []string{oidc.ScopeOpenID, "phone", "openid", "email"},
 	}
+    }
 }

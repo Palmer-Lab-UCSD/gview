@@ -1,9 +1,9 @@
 package application
 
 import (
-	"gview/internal/config"
-	"gview/internal/logger"
-	"gview/internal/service"
+	"github.com/Palmer-Lab-UCSD/gview/internal/config"
+	"github.com/Palmer-Lab-UCSD/gview/internal/logger"
+	"github.com/Palmer-Lab-UCSD/gview/internal/service"
 )
 
 type Application struct {
@@ -24,11 +24,11 @@ func Init(cfg *config.Config) (*Application, error) {
 		return nil, err
 	}
 
-	if app.Auth, err = service.AuthenticatorInit(); err != nil {
+	if app.Auth, err = service.AuthInit(cfg.Auth); err != nil {
 		return nil, err
 	}
 
-	if app.Log, err = logger.LoggerInit(cfg.Log); err != nil {
+	if app.Log, err = logger.LoggerInit(cfg.Log); err != nil {u
 		return nil, err
 	}
 

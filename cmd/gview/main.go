@@ -1,5 +1,5 @@
 // Launch the application
-
+//
 package main
 
 import (
@@ -8,13 +8,17 @@ import (
 	"os"
     "path/filepath"
 
-	"gview/internal/api"
-	"gview/internal/application"
-	"gview/internal/config"
+	"github.com/Palmer-Lab-UCSD/gview/internal/api"
+	"github.com/Palmer-Lab-UCSD/gview/internal/application"
+	"github.com/Palmer-Lab-UCSD/gview/internal/config"
 )
 
 func main() {
 
+    // Set up server variables
+    // -c   print log to server standard out
+    // --config path to server configuration file
+    // --root directory fo webservice, default "GVIEW_ROOT"
 	args := config.ParseInput()
 
 	cfg, err := config.InitConfig(args)
@@ -32,9 +36,9 @@ func main() {
 	mux := http.NewServeMux()
 
 	// Landing page provides interface for logging in, that is it
-	mux.HandleFunc("/", api.IndexHandlerFunc(app))
-    mux.HandleFunc("/user", api.UserFunc(app))
-	mux.HandleFunc("/logout", api.HandleLogout)
+	mux.HandleFunc("GET /", api.IndexHandlerFunc(app))
+    // mux.HandleFunc("/user", api.UserFunc(app))
+	// mux.HandleFunc("/logout", api.HandleLogout)
 	// mux.HandleFunc("/gwas", api.GwasHandlerFunc(app))
 	// mux.HandleFunc("/hwas", api.HwasHandlerFunc(app))
 	// mux.HandleFunc("/api/gwas/", api.GwasApiHandlerFunc(app))
@@ -43,19 +47,24 @@ func main() {
 		http.StripPrefix("/public/static",
 			http.FileServer(http.Dir(filepath.Join(cfg.RootDir, "public/static")))))
 
-	mgr := &autocert.Manager{
-		// Accept Let's Encrypts' terms of service
-		Prompt: autocert.AcceptTOS,
-
-		// Caching certificates
-		Cache: autocert.DirCache(CACHE_DIR),
-
-		// Exclusive set of domains to serve
-		HostPolicy: autocert.HostWhitelist(URL),
-	}
-
-	app.Log.Fatal(http.Serve(mgr.Listener(), mux))
-
-	app.Log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", cfg.HostName, cfg.Port),
-		mux))
+    if cfg.Environment == "dev" {
+        http.ListenAndServe(":8080", mux)
+    } else if cfg.Environment == "prod" {
+        return 
+//	mgr := &autocert.Manager{
+//		// Accept Let's Encrypts' terms of service
+//		Prompt: autocert.AcceptTOS,
+//
+//		// Caching certificates
+//		Cache: autocert.DirCache(CACHE_DIR),
+//
+//		// Exclusive set of domains to serve
+//		HostPolicy: autocert.HostWhitelist(URL),
+//	}
+//
+//	app.Log.Fatal(http.Serve(mgr.Listener(), mux))
+//
+//	app.Log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", cfg.HostName, cfg.Port),
+//		mux))
+    }
 }

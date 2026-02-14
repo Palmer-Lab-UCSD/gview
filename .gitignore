@@ -1,5 +1,7 @@
 *.DS_Store
 *.key
+.env
+*d3.v7.js
 to_translate/
 pkg/
 db/
