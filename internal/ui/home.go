@@ -15,26 +15,20 @@ func HomeHandlerFunc(app *app.App) func(http.ResponseWriter, *http.Request) {
     tmplDir := app.Cfg.Ui.TemplatesDir
     homeDir := filepath.Join(tmplDir, "home")
 
+    tmpl, err := template.ParseFiles(filepath.Join(tmplDir,
+            "base.html"), 
+        filepath.Join(tmplDir, "header.html"),
+        filepath.Join(tmplDir, "footer.html"),
+        filepath.Join(homeDir, "main.html"))
 
-    fmt.Printf("Template dir: %s\n", tmplDir)
-    fmt.Printf("Home dir: %s\n", homeDir)
+    if err != nil {
+        panic("Error in parsing home template files.")
+    }
+
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		app.Log.PrintHttpRequest(r)
 
-        tmpl, err := template.ParseFiles(filepath.Join(tmplDir,
-                "base.html"), 
-            filepath.Join(tmplDir, "header.html"),
-            filepath.Join(tmplDir, "footer.html"),
-            filepath.Join(homeDir, "main.html"))
-
-        if err != nil {
-            fmt.Printf("how did I get here?\n")
-            http.Redirect(w, r, "/error", 
-                http.StatusInternalServerError)
-        }
-
-            
         if tmpl.Execute(w, nil)  != nil {
             fmt.Printf("execute template failure")
             http.Redirect(w, r, "/error", 
