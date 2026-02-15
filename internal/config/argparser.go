@@ -8,7 +8,6 @@ import (
 
 type Args struct {
 	log_to_stdout  bool
-	root		   string
 	configFilename string
 }
 
@@ -19,10 +18,6 @@ func ParseInput() *Args {
 
 	flag.BoolVar(&(args.log_to_stdout), "c",
 		false, "Print the log to standard out")
-
-	flag.StringVar(&(args.root), "root",
-		os.Getenv(DefaultRootEnvVar),
-		"The root directory of the webservice")
 
 	flag.StringVar(&(args.configFilename), "config",
 		filepath.Join(os.Getenv(DefaultRootEnvVar),

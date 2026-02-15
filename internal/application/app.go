@@ -24,11 +24,11 @@ func Init(cfg *config.Config) (*Application, error) {
 		return nil, err
 	}
 
-	if app.Auth, err = service.AuthInit(cfg.Auth); err != nil {
-		return nil, err
-	}
+	//if app.Auth, err = service.AuthInit(cfg.Auth); err != nil {
+	//	return nil, err
+	//}
 
-	if app.Log, err = logger.LoggerInit(cfg.Log); err != nil {u
+	if app.Log, err = logger.LoggerInit(cfg.Log); err != nil {
 		return nil, err
 	}
 

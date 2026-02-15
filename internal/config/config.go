@@ -6,6 +6,31 @@ import (
 	"os"
 )
 
+type Network struct {
+	HostName    string
+	Port        string
+    Certs       string
+}
+
+type AuthConfig struct {
+    Pepper          string
+    BcryptHashCost  string
+}
+
+type ApiConfig struct {
+    MaxGenomicCoordDomain   uint64
+}
+
+type UiConfig struct {
+    StaticDir       string
+	TemplatesDir    string
+}
+
+type LogConfig struct {
+	Dir         string
+	MaxFileSize int64
+}
+
 type DatabaseConfig struct {
 	UserEnvVar        string
 	PasswdEnvVar      string
@@ -20,35 +45,28 @@ type DatabaseConfig struct {
 	ConnectionTimeOut string
 }
 
-type LogConfig struct {
-	Dir         string
-	MaxFileSize int64
-}
-
-type ApiConfig struct {
-	MaxGenomicCoordDomain uint
-	Js                    string
-	Css                   string
-	Templates             string
-}
 
 type Config struct {
-	RootDir  string
-	HostName string
-	Port     string
-	Api      *ApiConfig
-	Log      *LogConfig
-	Db       *DatabaseConfig
+    ConfigName  string
+    Network     *NetworkConfig
+    Auth        *AuthConfig
+	Api         *ApiConfig
+    Ui          *UiConfig
+	Log         *LogConfig
+	Db          *DatabaseConfig
 }
 
 func NewCfg() *Config {
-	return &Config{Api: new(ApiConfig),
+    return &Config{ConfigName: "",
+        Ui: new(UiConfig),
+        Network: new(NetworkConfig),
+        Auth: new(AuthConfig),
+        Api: new(ApiConfig),
 		Log: new(LogConfig),
 		Db:  new(DatabaseConfig)}
 }
 
 func ReadConfig(filename string, cfg *Config) error {
-
 	fid, err := os.Open(filename)
 	if err != nil {
 		return err
@@ -76,10 +94,6 @@ func InitConfig(args *Args) (*Config, error) {
 		return nil, err
 	}
 	
-	if cfg.RootDir == "" {
-		cfg.RootDir = args.root
-	}
-
 	if args.log_to_stdout {
 		cfg.Log.Dir = ""
 	}
