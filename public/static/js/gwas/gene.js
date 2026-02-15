@@ -43,14 +43,7 @@ const default_layout = {
  */
 class PlabGenes extends LocusZoom.DataLayers.get("BaseDataLayer") {
     /**
-     * @param {string|module:LocusZoom_DataLayers~ScalableParameter[]} [layout.stroke='rgb(54, 54, 150)'] The stroke color for each intron and exon
-     * @param {string|module:LocusZoom_DataLayers~ScalableParameter[]} [layout.color='#363696'] The fill color for each intron and exon
-     * @param {number} [layout.label_font_size]
-     * @param {number} [layout.label_exon_spacing] The number of px padding between exons and the gene label
-     * @param {number} [layout.exon_height=10] The height of each exon (vertical line) when drawing the gene
-     * @param {number} [layout.bounding_box_padding=3] Padding around edges of the bounding box, as shown when highlighting a selected gene
-     * @param {number} [layout.track_vertical_spacing=5] Vertical spacing between each row of genes
-     * @param {'horizontal'|'vertical'|'top'|'bottom'|'left'|'right'} [layout.tooltip_positioning='top'] Where to draw the tooltip relative to the datum.
+     * See defined types
      */
     constructor(layout, parent) {
         layout = LocusZoom.Layouts.merge(layout, default_layout);
@@ -126,24 +119,23 @@ class PlabGenes extends LocusZoom.DataLayers.get("BaseDataLayer") {
             //  when zooming in, without breaking the layout by allocating space for genes that are not visible.
             .filter((item) => !(item.end < this.state.start) && !(item.start > this.state.end))
             .map((item) => {
-            const { start_field, end_field, gene_name_field } = this.layout;
             // Determine display range start and end, based on minimum allowable gene display width, bounded by what we can see
             // (range: values in terms of pixels on the screen)
             item.display_range = {
-                start: this.parent.x_scale(Math.max(item[start_field], this.state.start)),
-                end: this.parent.x_scale(Math.min(item[end_field], this.state.end)),
+                start: this.parent.x_scale(Math.max(item.start, this.state.start)),
+                end: this.parent.x_scale(Math.min(item.end, this.state.end))
             };
-            item.display_range.label_width = _getLabelWidth(item[gene_name_field], this.layout.label_font_size);
+            item.display_range.label_width = _getLabelWidth(item.GeneId, this.layout.label_font_size);
             item.display_range.width = item.display_range.end - item.display_range.start;
             item.display_range.text_anchor = 'middle';
             if (item.display_range.width < item.display_range.label_width) {
-                if (item["start_field"] < this.state.start) {
+                if (item.start < this.state.start) {
                     item.display_range.end = item.display_range.start
                         + item.display_range.label_width
                         + this.layout.label_font_size;
                     item.display_range.text_anchor = 'start';
                 }
-                else if (item["end_field"] > this.state.end) {
+                else if (item.end > this.state.end) {
                     item.display_range.start = item.display_range.end
                         - item.display_range.label_width
                         - this.layout.label_font_size;
@@ -220,9 +212,8 @@ class PlabGenes extends LocusZoom.DataLayers.get("BaseDataLayer") {
         track_data = this.assignTracks(track_data);
         let height;
         // Render gene groups
-        const { start_field, end_field, gene_name_field, strand_field } = this.layout;
         const selection = this.svg.group.selectAll('g.lz-data_layer-genes')
-            .data(track_data, (d) => d[gene_name_field]);
+            .data(track_data, (d) => d.GeneId);
         selection.enter()
             .append('g')
             .attr('class', 'lz-data_layer-genes')
@@ -231,7 +222,8 @@ class PlabGenes extends LocusZoom.DataLayers.get("BaseDataLayer") {
             .each(function (gene) {
             const data_layer = gene.parent;
             // Render gene bounding boxes (status nodes to show selected/highlighted)
-            const bboxes = d3.select(this).selectAll('rect.lz-data_layer-genes.lz-data_layer-genes-statusnode')
+            // Remember that `this` references the DOM 'g' element and not the parent class PlabGenes;
+            const bboxes = d3.select(this, SVGGElement).selectAll('rect.lz-data_layer-genes.lz-data_layer-genes-statusnode')
                 .data([gene], (d) => data_layer.getElementStatusNodeId(d));
             height = data_layer.getTrackHeight() - data_layer.layout.track_vertical_spacing;
             bboxes.enter()
@@ -248,17 +240,19 @@ class PlabGenes extends LocusZoom.DataLayers.get("BaseDataLayer") {
             bboxes.exit()
                 .remove();
             // Render gene boundaries
-            const boundaries = d3.select(this).selectAll('rect.lz-data_layer-genes.lz-boundary')
-                .data([gene], (d) => `${d[gene_name_field]}_boundary`);
+            const boundaries = d3.select(this, SVGGElement).selectAll('rect.lz-data_layer-genes.lz-boundary')
+                .data([gene], (d) => `${d.GeneId}_boundary`);
             // FIXME: Make gene text font sizes scalable
             height = 1;
             boundaries.enter()
                 .append('rect')
                 .attr('class', 'lz-data_layer-genes lz-boundary')
                 .merge(boundaries)
-                .attr('width', (d) => data_layer.parent.x_scale(d[end_field]) - data_layer.parent.x_scale(d[start_field]))
+                .attr('width', (d) => {
+                return data_layer.parent.x_scale(d.end) - data_layer.parent.x_scale(d.start);
+            })
                 .attr('height', height)
-                .attr('x', (d) => data_layer.parent.x_scale(d[start_field]))
+                .attr('x', (d) => data_layer.parent.x_scale(d.start))
                 .attr('y', (d) => {
                 return ((d.track - 1) * data_layer.getTrackHeight())
                     + data_layer.layout.bounding_box_padding
@@ -266,19 +260,25 @@ class PlabGenes extends LocusZoom.DataLayers.get("BaseDataLayer") {
                     + data_layer.layout.label_exon_spacing
                     + (Math.max(data_layer.layout.exon_height, 3) / 2);
             })
-                .style('fill', (d, i) => self.resolveScalableParameter(self.layout.color, d, i))
-                .style('stroke', (d, i) => self.resolveScalableParameter(self.layout.stroke, d, i));
+                .style('fill', (d, i) => {
+                return self.resolveScalableParameter(self.layout.color, d, i);
+            })
+                .style('stroke', (d, i) => {
+                return self.resolveScalableParameter(self.layout.stroke, d, i);
+            });
             boundaries.exit()
                 .remove();
             // Render gene labels
             const labels = d3.select(this).selectAll('text.lz-data_layer-genes.lz-label')
-                .data([gene], (d) => `${d[gene_name_field]}_label`);
+                .data([gene], (d) => `${d.GeneId}_label`);
             labels.enter()
                 .append('text')
                 .attr('class', 'lz-data_layer-genes lz-label')
                 .merge(labels)
                 .attr('text-anchor', (d) => d.display_range.text_anchor)
-                .text((d) => (d[strand_field] === "+") ? `${d[gene_name_field]}→` : `←${d[gene_name_field]}`)
+                .text((d) => {
+                return (d.strand === "+") ? `${d.GeneId}→` : `←${d.GeneId}`;
+            })
                 .style('font-size', gene.parent.layout.label_font_size)
                 .attr('x', (d) => {
                 if (d.display_range.text_anchor === 'middle') {
@@ -319,8 +319,8 @@ class PlabGenes extends LocusZoom.DataLayers.get("BaseDataLayer") {
             // exons.exit()
             //     .remove();
             // Render gene click area
-            const clickareas = d3.select(this).selectAll('rect.lz-data_layer-genes.lz-clickarea')
-                .data([gene], (d) => `${d.gene_name}_clickarea`);
+            const clickareas = d3.select(this, SVGGElement).selectAll('rect.lz-data_layer-genes.lz-clickarea')
+                .data([gene], (d) => `${d.GeneId}_clickarea`);
             height = data_layer.getTrackHeight() - data_layer.layout.track_vertical_spacing;
             clickareas.enter()
                 .append('rect')
@@ -332,7 +332,9 @@ class PlabGenes extends LocusZoom.DataLayers.get("BaseDataLayer") {
                 .attr('width', (d) => d.display_range.width)
                 .attr('height', height)
                 .attr('x', (d) => d.display_range.start)
-                .attr('y', (d) => ((d.track - 1) * data_layer.getTrackHeight()));
+                .attr('y', (d) => {
+                return ((d.track - 1) * data_layer.getTrackHeight());
+            });
             // Remove old clickareas as needed
             clickareas.exit()
                 .remove();

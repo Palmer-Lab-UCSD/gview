@@ -17,8 +17,9 @@ func HomeHandlerFunc(app *app.App) func(http.ResponseWriter, *http.Request) {
 
     tmpl, err := template.ParseFiles(filepath.Join(tmplDir,
             "base.html"), 
-        filepath.Join(tmplDir, "header.html"),
         filepath.Join(tmplDir, "footer.html"),
+        filepath.Join(homeDir, "header.html"),
+        filepath.Join(homeDir, "jsLinks.html"),
         filepath.Join(homeDir, "main.html"))
 
     if err != nil {

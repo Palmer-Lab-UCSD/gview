@@ -38,6 +38,7 @@ func main() {
 
 	// Landing page provides interface for logging in, that is it
 	mux.HandleFunc("GET /", ui.HomeHandlerFunc(app))
+	mux.HandleFunc("GET /signIn", ui.SignInHandlerFunc(app))
     mux.HandleFunc("GET /error", ui.ErrorHandler)
     // mux.HandleFunc("/user", api.UserFunc(app))
 	// mux.HandleFunc("/logout", api.HandleLogou)
