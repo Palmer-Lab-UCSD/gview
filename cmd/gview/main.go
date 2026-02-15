@@ -1,4 +1,4 @@
-// Launch the application
+// Launch the web server 
 //
 package main
 
@@ -8,9 +8,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-    "path/filepath"
 
-	"github.com/Palmer-Lab-UCSD/gview/internal/application"
+	"github.com/Palmer-Lab-UCSD/gview/internal/app"
 	"github.com/Palmer-Lab-UCSD/gview/internal/config"
 	"github.com/Palmer-Lab-UCSD/gview/internal/ui"
 )
@@ -29,23 +28,19 @@ func main() {
 		os.Exit(1)
 	}
 
-	app, err := application.Init(cfg)
+	app, err := app.Init(cfg)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(2)
 	}
 
-    fmt.Printf("Environment: %s\n", cfg.ConfigName)
-    fmt.Printf("HostName:Port: %s%s\n",
-            cfg.Networt.HostName,
-            cfg.Network.Port)
-
 	mux := http.NewServeMux()
 
 	// Landing page provides interface for logging in, that is it
 	mux.HandleFunc("GET /", ui.HomeHandlerFunc(app))
+    mux.HandleFunc("GET /error", ui.ErrorHandler)
     // mux.HandleFunc("/user", api.UserFunc(app))
-	// mux.HandleFunc("/logout", api.HandleLogout)
+	// mux.HandleFunc("/logout", api.HandleLogou)
 	// mux.HandleFunc("/gwas", api.GwasHandlerFunc(app))
 	// mux.HandleFunc("/hwas", api.HwasHandlerFunc(app))
 	// mux.HandleFunc("/api/gwas/", api.GwasApiHandlerFunc(app))

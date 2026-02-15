@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/Palmer-Lab-UCSD/gview/internal/application"
+	"github.com/Palmer-Lab-UCSD/gview/internal/app"
 	"github.com/Palmer-Lab-UCSD/gview/internal/service"
 )
 
@@ -347,7 +347,7 @@ func processChrStatsQuery(w http.ResponseWriter,
 	return nil
 }
 
-func GwasApiHandlerFunc(app *application.Application) func(http.ResponseWriter, *http.Request) {
+func GwasApiHandlerFunc(app *app.App) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		app.Log.PrintHttpRequest(r)
 

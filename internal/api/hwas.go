@@ -3,7 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
-	"github.com/Palmer-Lab-UCSD/gview/internal/application"
+	"github.com/Palmer-Lab-UCSD/gview/internal/app"
 )
 
 // TODO
@@ -12,7 +12,7 @@ func hwasText(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func HwasHandlerFunc(app *application.Application) func(http.ResponseWriter, *http.Request) {
+func HwasHandlerFunc(app *app.App) func(http.ResponseWriter, *http.Request) {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		var err error

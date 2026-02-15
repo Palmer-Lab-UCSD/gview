@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/Palmer-Lab-UCSD/gview/internal/application"
+	"github.com/Palmer-Lab-UCSD/gview/internal/app"
 	"github.com/Palmer-Lab-UCSD/gview/internal/service"
 )
 
@@ -29,7 +29,7 @@ func gwasAnalysis(w http.ResponseWriter, db *service.OrgDb) error {
 	return t.Execute(w, output)
 }
 
-func GwasHandlerFunc(app *application.Application) func(http.ResponseWriter, *http.Request) {
+func GwasHandlerFunc(app *app.App) func(http.ResponseWriter, *http.Request) {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		var err error

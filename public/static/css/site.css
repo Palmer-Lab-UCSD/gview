@@ -105,3 +105,8 @@ select.plab:hover {
     border-color:#424242;
 }
 
+footer .logo { 
+    display: flex;
+    width: 300px;
+}
+

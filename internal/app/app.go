@@ -1,4 +1,4 @@
-package application
+package app
 
 import (
 	"github.com/Palmer-Lab-UCSD/gview/internal/config"
@@ -6,7 +6,7 @@ import (
 	"github.com/Palmer-Lab-UCSD/gview/internal/service"
 )
 
-type Application struct {
+type App struct {
 	Cfg 	*config.Config
 	Db   	*service.OrgDb
 	Auth 	*service.Authenticate
@@ -14,8 +14,8 @@ type Application struct {
 }
 
 
-func Init(cfg *config.Config) (*Application, error) {
-	app := new(Application)
+func Init(cfg *config.Config) (*App, error) {
+	app := new(App)
 
 	app.Cfg = cfg
 

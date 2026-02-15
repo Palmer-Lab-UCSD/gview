@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-type Network struct {
+type NetworkConfig struct {
 	HostName    string
 	Port        string
     Certs       string
@@ -14,7 +14,7 @@ type Network struct {
 
 type AuthConfig struct {
     Pepper          string
-    BcryptHashCost  string
+    BcryptHashCost  uint8
 }
 
 type ApiConfig struct {
