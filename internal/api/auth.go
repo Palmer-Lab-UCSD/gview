@@ -52,3 +52,5 @@ func AuthHandlerFunc(app *app.App) func(http.ResponseWriter, *http.Request) {
         _, _ = w.Write(outjson)
     }
 }
+
+

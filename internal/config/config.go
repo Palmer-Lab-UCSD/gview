@@ -77,7 +77,7 @@ func NewCfg() *Config {
                         AuthDb: new(DatabaseConfig)}}
 }
 
-func ReadConfig(filename string, cfg *Config) error {
+func readConfig(filename string, cfg *Config) error {
 	fid, err := os.Open(filename)
 	if err != nil {
 		return err
@@ -96,16 +96,16 @@ func ReadConfig(filename string, cfg *Config) error {
 	return nil
 }
 
-func InitConfig(args *Args) (*Config, error) {
+func InitConfig(logsToStdout bool, configFilename string) (*Config, error) {
 
 	cfg := NewCfg()
 	var err error
 
-	if err = ReadConfig(args.configFilename, cfg); err != nil {
+	if err = readConfig(configFilename, cfg); err != nil {
 		return nil, err
 	}
 	
-	if args.log_to_stdout {
+	if logsToStdout {
 		cfg.Log.Dir = ""
 	}
 
