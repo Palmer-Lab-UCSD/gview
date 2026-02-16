@@ -1,78 +1,48 @@
 // Launch the web server 
 //
+// ARGUMENTS
+//
+// -c   print log to server standard out
+// --config path to server configuration file
+
 package main
 
 
 import (
 	"fmt"
-	"net/http"
 	"os"
+    "net/http"
 
 	"github.com/Palmer-Lab-UCSD/gview/internal/app"
-	"github.com/Palmer-Lab-UCSD/gview/internal/config"
-	"github.com/Palmer-Lab-UCSD/gview/internal/ui"
-    "github.com/Palmer-Lab-UCSD/gview/internal/api"
+	"github.com/Palmer-Lab-UCSD/gview/internal/api"
 )
+
+const (
+    EXIT_SERVER_ERROR = 1
+    EXIT_APP_ERROR = 2
+    EXIT_API_ERROR = 3
+)
+
 
 func main() {
 
-    // Set up server variables
-    // -c   print log to server standard out
-    // --config path to server configuration file
-    // --root directory fo webservice, default "GVIEW_ROOT"
-	args := config.ParseInput()
+    var err error
+    var mux *http.ServeMux = http.NewServeMux()
 
-	cfg, err := config.InitConfig(args)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	app, err := app.Init(cfg)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(2)
-	}
-
-	mux := http.NewServeMux()
-
-	// Landing page provides interface for logging in, that is it
-	mux.HandleFunc("GET /", ui.HomeHandlerFunc(app))
-	mux.HandleFunc("GET /signIn", ui.SignInHandlerFunc(app))
-    mux.HandleFunc("GET /error", ui.ErrorHandler)
-
-
-	mux.HandleFunc("POST /api/auth", api.AuthHandlerFunc(app))
-
-    // mux.HandleFunc("/user", api.UserFunc(app))
-	// mux.HandleFunc("/logout", api.HandleLogou)
-	// mux.HandleFunc("/gwas", api.GwasHandlerFunc(app))
-	// mux.HandleFunc("/hwas", api.HwasHandlerFunc(app))
-	// mux.HandleFunc("/api/gwas/", api.GwasApiHandlerFunc(app))
-
-	mux.Handle("GET /public/static/",
-		http.StripPrefix("/public/static",
-			http.FileServer(http.Dir(cfg.Ui.StaticDir))))
-
-
-    if cfg.ConfigName == "dev" {
-        app.Log.Fatal(http.ListenAndServe(cfg.Network.Port, mux))
-    } else if cfg.ConfigName == "prod" {
-        return 
-//	mgr := &autocert.Manager{
-//		// Accept Let's Encrypts' terms of service
-//		Prompt: autocert.AcceptTOS,
-//
-//		// Caching certificates
-//		Cache: autocert.DirCache(CACHE_DIR),
-//
-//		// Exclusive set of domains to serve
-//		HostPolicy: autocert.HostWhitelist(URL),
-//	}
-//
-//	app.Log.Fatal(http.Serve(mgr.Listener(), mux))
-//
-//	app.Log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", cfg.HostName, cfg.Port),
-//		mux))
+    if err = app.SetUpApp(args, mux); err != nil {
+        fmt.Fprintf(os.Stderr, "%s\n", err)
+        os.Exit(EXIT_APP_ERROR)
     }
+
+    if err = api.SetUpApi(app, mux); err != nil {
+        fmt.Fprintf(os.Stderr, "%s\n", err)
+        os.Exit(EXIT_API_ERROR)
+    }
+
+    if err = http.ListenAndServe(app.Network., mux); err != nil {
+        fmt.Fprintf(os.Stderr, "%s\n", err)
+        os.Exit(EXIT_ON_ERROR)
+    }
+
+    fmt.Fprintf(os.Stdout, "SERVER STOPED WITHOUT ERROR.")
 }

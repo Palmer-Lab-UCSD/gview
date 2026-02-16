@@ -71,7 +71,7 @@ func getLogFilename(dir string, max_filesize int64) string {
 	return prev_name
 }
 
-func LoggerInit(cfg *config.LogConfig) (*AppLogger, error) {
+func InitLogger(cfg *config.LogConfig) (*AppLogger, error) {
 
 	logger := &AppLogger{Logger: new(log.Logger)}
 
