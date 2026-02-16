@@ -2,7 +2,6 @@
 //
 package main
 
-// "github.com/Palmer-Lab-UCSD/gview/internal/api"
 
 import (
 	"fmt"
@@ -12,6 +11,7 @@ import (
 	"github.com/Palmer-Lab-UCSD/gview/internal/app"
 	"github.com/Palmer-Lab-UCSD/gview/internal/config"
 	"github.com/Palmer-Lab-UCSD/gview/internal/ui"
+    "github.com/Palmer-Lab-UCSD/gview/internal/api"
 )
 
 func main() {
@@ -40,6 +40,10 @@ func main() {
 	mux.HandleFunc("GET /", ui.HomeHandlerFunc(app))
 	mux.HandleFunc("GET /signIn", ui.SignInHandlerFunc(app))
     mux.HandleFunc("GET /error", ui.ErrorHandler)
+
+
+	mux.HandleFunc("POST /api/auth", api.AuthHandlerFunc(app))
+
     // mux.HandleFunc("/user", api.UserFunc(app))
 	// mux.HandleFunc("/logout", api.HandleLogou)
 	// mux.HandleFunc("/gwas", api.GwasHandlerFunc(app))

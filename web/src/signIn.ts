@@ -11,8 +11,8 @@ signInButton.addEventListener("click", (event: Event) => {
     }
     const fdata = new FormData(parentForm);
     // Validate input
-    const userEmail: string = "cat";
-    const userPassword: string = "dog";
+    const userEmail: string = fdata.get("email") as string;
+    const userPassword: string = fdata.get("password") as string;
     
     // Construct the request
     const header = new Headers();
@@ -21,16 +21,15 @@ signInButton.addEventListener("click", (event: Event) => {
     const payload = new URLSearchParams({email: userEmail,
         password: userPassword})
 
-    const req: Request = new Request("/api/signIn", {
+    const req: Request = new Request("/api/auth", {
         headers: header,
         method: "POST",
         body: payload,
-        mode: "same-origin",
-        credentials: "same-origin"
     })
 
     fetch(req)
     .then((res) => {
+        console.log(res.headers.get("content-type"));
         if (!res.ok) {
             throw new Error(`Http error: ${res.status}`);
         } else if (res.headers.get("content-type") !== "application/json") {
@@ -38,8 +37,8 @@ signInButton.addEventListener("click", (event: Event) => {
         }
         return res.blob();
     })
-    .then((response) => {
-         
+    .then((res) => {
+        console.log("here"); 
     });
 })
 

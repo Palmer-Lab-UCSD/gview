@@ -8,7 +8,8 @@ import (
 
 type App struct {
 	Cfg 	*config.Config
-	Db   	*service.OrgDb
+	DataDb 	*service.DataDb
+    AuthDb  *service.AuthDb
 	Auth 	*service.Authenticate
 	Log  	*logger.AppLogger
 }
@@ -20,13 +21,15 @@ func Init(cfg *config.Config) (*App, error) {
 	app.Cfg = cfg
 
 	var err error
-	if app.Db, err = service.DbInit(cfg.Db); err != nil {
+	app.DataDb, err = service.OpenDbConn(cfg.Db.NetworkSettings, cfg.Db.DataDb)
+	if err != nil {
 		return nil, err
 	}
 
-	//if app.Auth, err = service.AuthInit(cfg.Auth); err != nil {
-	//	return nil, err
-	//}
+	app.Auth, err = service.OpenDbConn(cfg.Db.NetworkSettings, cfg.Db.AuthDb)
+	if err != nil {
+		return nil, err
+	}
 
 	if app.Log, err = logger.LoggerInit(cfg.Log); err != nil {
 		return nil, err

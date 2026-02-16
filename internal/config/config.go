@@ -31,10 +31,7 @@ type LogConfig struct {
 	MaxFileSize int64
 }
 
-type DatabaseConfig struct {
-	UserEnvVar        string
-	PasswdEnvVar      string
-	Name              string
+type DatabaseNetwork struct {
 	Driver            string
 	HostName          string
 	Port              string
@@ -45,6 +42,18 @@ type DatabaseConfig struct {
 	ConnectionTimeOut string
 }
 
+type DatabaseConfig struct {
+	Name              string
+	UserEnvVar        string
+	PasswdEnvVar      string
+}
+
+type Databases struct {
+    NetworkSettings     *DatabaseNetwork
+    DataDb              *DatabaseConfig
+    AuthDb              *DatabaseConfig
+}
+
 
 type Config struct {
     ConfigName  string
@@ -53,7 +62,7 @@ type Config struct {
 	Api         *ApiConfig
     Ui          *UiConfig
 	Log         *LogConfig
-	Db          *DatabaseConfig
+	Db          *Databases
 }
 
 func NewCfg() *Config {
@@ -63,7 +72,9 @@ func NewCfg() *Config {
         Auth: new(AuthConfig),
         Api: new(ApiConfig),
 		Log: new(LogConfig),
-		Db:  new(DatabaseConfig)}
+        Db:  &Databases{NetworkSettings: new(NetworkConfig),
+                        DataDb: new(DatabaseConfig),
+                        AuthDb: new(DatabaseConfig)}}
 }
 
 func ReadConfig(filename string, cfg *Config) error {

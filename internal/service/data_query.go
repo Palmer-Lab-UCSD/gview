@@ -10,7 +10,7 @@ const (
 	BIN_BUFSIZE int = 100 * NBINS
 )
 
-func GetProjectIds(db *OrgDb) ([]string, error) {
+func GetProjectIds(db *DataDb) ([]string, error) {
 
 	// TODO need to add check that the schema exists in information_schema
 	rows, err := db.Query("SELECT name FROM projs;")
@@ -27,7 +27,7 @@ func GetProjectIds(db *OrgDb) ([]string, error) {
 }
 
 // Asks for phenotype in table: <schema>.results
-func GetPhenotypes(db *OrgDb,
+func GetPhenotypes(db *DataDb,
 	schema string) ([]string, error) {
 
 	var err error
@@ -50,7 +50,7 @@ func GetPhenotypes(db *OrgDb,
 	return output, nil
 }
 
-func GetChrom(db *OrgDb,
+func GetChrom(db *DataDb,
 	schema string,
 	table string) ([]string, error) {
 
@@ -74,7 +74,7 @@ func GetChrom(db *OrgDb,
 	return output, nil
 }
 
-func GetLocusAtMaxAssoc(db *OrgDb,
+func GetLocusAtMaxAssoc(db *DataDb,
 	schema string,
 	table string,
 	chr string) (uint64, error) {
@@ -98,7 +98,7 @@ func GetLocusAtMaxAssoc(db *OrgDb,
 	return out, nil
 }
 
-func GetGwasAllLociRecords(db *OrgDb,
+func GetGwasAllLociRecords(db *DataDb,
 	schema string,
 	table string,
 	chr string) ([]GwasLocusRecord, error) {
@@ -119,7 +119,7 @@ func GetGwasAllLociRecords(db *OrgDb,
 	return ProcessGwasRecords(rows)
 }
 
-func GetGwasBoundedLociRecords(db *OrgDb,
+func GetGwasBoundedLociRecords(db *DataDb,
 	schema string,
 	table string,
 	chr string,
@@ -147,7 +147,7 @@ func GetGwasBoundedLociRecords(db *OrgDb,
 	return ProcessGwasRecords(rows)
 }
 
-func GetChrWideSubset(db *OrgDb,
+func GetChrWideSubset(db *DataDb,
 	schema string,
 	table string,
 	chr string) ([]GwasChrWideViewRecord, error) {
@@ -197,7 +197,7 @@ func GetChrWideSubset(db *OrgDb,
 	return out, nil
 }
 
-func GetGenes(db *OrgDb,
+func GetGenes(db *DataDb,
 	chr string,
 	start string,
 	end string) ([]GeneAnnotationRecord, error) {
@@ -256,7 +256,7 @@ func GetGenes(db *OrgDb,
 func GetChrStats(schema string,
 	table string,
 	chr string,
-	db *OrgDb) (*ChrStats, error) {
+	db *DataDb) (*ChrStats, error) {
 
 	var chrStats ChrStats
 	var err error

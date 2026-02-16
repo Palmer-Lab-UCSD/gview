@@ -1,37 +1,36 @@
-"use strict";
-const signInButton = document.querySelector("button#signInButton");
-signInButton.addEventListener("click", (event) => {
-    const button = event.target;
-    const parentForm = button.parentElement;
-    if (parentForm?.tagName !== "FORM") {
+var signInButton = document.querySelector("button#signInButton");
+signInButton.addEventListener("click", function (event) {
+    var button = event.target;
+    var parentForm = button.parentElement;
+    if ((parentForm === null || parentForm === void 0 ? void 0 : parentForm.tagName) !== "FORM") {
         return;
     }
-    const fdata = new FormData(parentForm);
+    var fdata = new FormData(parentForm);
     // Validate input
-    const userEmail = "cat";
-    const userPassword = "dog";
+    var userEmail = fdata.get("email");
+    var userPassword = fdata.get("password");
     // Construct the request
-    const header = new Headers();
+    var header = new Headers();
     header.append("Content-Type", "application/x-www-form-urlencoded");
-    const payload = new URLSearchParams({ email: userEmail,
+    var payload = new URLSearchParams({ email: userEmail,
         password: userPassword });
-    const req = new Request("/api/signIn", {
+    var req = new Request("/api/auth", {
         headers: header,
         method: "POST",
         body: payload,
-        mode: "same-origin",
-        credentials: "same-origin"
     });
     fetch(req)
-        .then((res) => {
+        .then(function (res) {
+        console.log(res.headers.get("content-type"));
         if (!res.ok) {
-            throw new Error(`Http error: ${res.status}`);
+            throw new Error("Http error: ".concat(res.status));
         }
         else if (res.headers.get("content-type") !== "application/json") {
             throw new TypeError("Response content-type incorrect");
         }
         return res.blob();
     })
-        .then((response) => {
+        .then(function (res) {
+        console.log("here");
     });
 });
