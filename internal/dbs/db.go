@@ -1,4 +1,4 @@
-package service
+package dbs
 
 import (
 	"database/sql"
@@ -10,10 +10,7 @@ import (
 	"github.com/Palmer-Lab-UCSD/gview/internal/config"
 )
 
-// DataDb is an alias of sql.DB.  I wanted to include this to
-// reinforce the idea that the interactions with the database
-// assume the specific database architecture
-type Db interface {
+type Db struct{
 	*sql.DB
 }
 
@@ -64,5 +61,11 @@ func OpenDbConn(db *Db,
 	if err != nil {
 		return err
 	}
+
+    // verify database connection
+    err = db.Ping()
+    if err != nil {
+        return err
+    }
     return nil
 }

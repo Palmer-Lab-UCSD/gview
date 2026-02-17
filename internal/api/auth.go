@@ -1,55 +1,82 @@
 package api
 
-    // "github.com/Palmer-Lab-UCSD/internal/service"
 import (
     "encoding/json"
     "net/http"
+    "net/mail"
+    "golang.org/x/crypto/bcrypt"
 
-    "github.com/Palmer-Lab-UCSD/gview/internal/app"
+    "github.com/Palmer-Lab-UCSD/internal/dbs"
 )
 
-
-type AuthResponse struct {
-    ErrMsg          string
-    RedirectUrl     string
+type ResponseSignIn {
+    requestUrl  string
 }
 
 
-func AuthHandlerFunc(app *app.App) func(http.ResponseWriter, *http.Request) {
+func isValidSignIn(email string, password string) bool {
+    emailAddress, err := mail.ParseAddress(email)
+    if err != nil {
+        return false
+    }
     
+    hashPw     
+
+    err = bcrypt.CompareHashAndPassword(hashPw, []byte(pepperedPassword))
+    if err == nil {
+        return true
+    }
+
+    return fail
+}
+
+
+// Verify user sign in credentials.
+//
+// A response should:
+//  * Discloses the validity of user credentials through http status
+//      codes.  Status code of 200 indicates match, 
+func signInFunc(api *Api) func(http.ResponseWriter, *http.Request) {
+    
+    var res ResponseSignIn
+
     return func (w http.ResponseWriter, r *http.Request) {
-        app.Log.PrintHttpRequest(r)
+        //TODO CHECK IF USER IS ALREADY LOGGED IN
+
+
+        api.Log.PrintHttpRequest(r)
 
 	    w.Header().Add("content-type", "application/json")
         
         if err := r.ParseForm(); err != nil {
-            app.Log.PrintError(err)
-            w.WriteHeader(http.StatusInternalServerError)
-            outjson, _ := json.Marshal(AuthResponse{
-                ErrMsg: "Parse sign-in credentials.",
-                RedirectUrl: ""})
-            _, _ = w.Write(outjson)
+            api.Log.PrintError(err)
+            w.WriteHeader(http.StatusBadRequest)
+            res = ResponseSignIn{redirectUrl:""}
+            outjson, _ := json.Marshal(res)
+            w.Write(outjson)
             return
         }
 
         // Authenticate
+        if isValidCred(r) {
+            w.WriteHeader(http.StatusOK)
+            // TODO NEED TO SUBSTITUTE USER ID
+            res = ResponseSignIn("/workspace/user id")
 
-        // Package response
-        outjson, err := json.Marshal(AuthResponse{ErrMsg: "",
-            RedirectUrl: "/workspace/1"})
-
-        if err != nil {
-            app.Log.PrintError(err)
-            w.WriteHeader(http.StatusInternalServerError)
-            outjson, _ := json.Marshal(AuthResponse{
-                ErrMsg: "Parse sign-in credentials.",
-                RedirectUrl: ""})
-            _, _ = w.Write(outjson)
-            return
+            // TODO NEED TO SET COOOKIES
+            
+            outjson, _ := json.Marshal(res)
+            w.Write(outjson)
+        } else {
+            w.WriteHeader(http.BadRequest)
+            res = ResponseSignIn{redirectUrl: ""}
+            outjson, _ := json.Marshal(res)
+            w.Write(outjson)
         }
 
-        w.WriteHeader(http.StatusOK)
-        _, _ = w.Write(outjson)
+
+        // Package response
+
     }
 }
 
