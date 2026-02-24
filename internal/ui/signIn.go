@@ -6,32 +6,24 @@ import (
     "html/template"
     "path/filepath"
 
-    "github.com/Palmer-Lab-UCSD/gview/internal/app"
+    "github.com/Palmer-Lab-UCSD/gview/internal/config"
+    "github.com/Palmer-Lab-UCSD/gview/internal/logger"
 )
 
 
-func SignInHandlerFunc(app *app.App) func(http.ResponseWriter, *http.Request) {
+func SignInPage(tmplDir string) (*tmpl.Template, error) {
 
-    tmplDir := app.Cfg.Ui.TemplatesDir
     signInDir := filepath.Join(tmplDir, "signIn")
 
-    tmpl, err := template.ParseFiles(filepath.Join(tmplDir,
-            "base.html"), 
+    tmpl, err := template.ParseFiles(filepath.Join(tmplDir, "base.html"), 
         filepath.Join(tmplDir, "footer.html"),
         filepath.Join(signInDir, "header.html"),
         filepath.Join(signInDir, "main.html"),
         filepath.Join(signInDir, "jsLinks.html"))
 
     if err != nil {
-        panic("Error in parsing signIn template files.")
+        return nil, err
     }
 
-    return func(w http.ResponseWriter, r *http.Request) {
-        app.Log.PrintHttpRequest(r)
-
-        if tmpl.Execute(w, nil) != nil {
-            fmt.Printf("execute template error in signIn")
-            http.Redirect(w, r, "/error", http.StatusInternalServerError)
-        }
-    }
+    return tmpl, nil
 }

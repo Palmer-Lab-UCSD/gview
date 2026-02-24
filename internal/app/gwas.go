@@ -1,21 +1,21 @@
-package api
+package app
 
 import (
 	"errors"
 	"html/template"
 	"net/http"
 
-	"github.com/Palmer-Lab-UCSD/gview/internal/app"
-	"github.com/Palmer-Lab-UCSD/gview/internal/service"
+	"github.com/Palmer-Lab-UCSD/gview/internal/config"
+	"github.com/Palmer-Lab-UCSD/gview/internal/dbs"
 )
 
-func gwasAnalysis(w http.ResponseWriter, db *service.DataDb) error {
+func gwasAnalysis(w http.ResponseWriter, db *dbs.DataDb) error {
 	var err error
 	output := new(struct {
 		Projects []string
 	})
 
-	output.Projects, err = service.GetProjectIds(db)
+	output.Projects, err = dbs.GetProjectIds(db)
 	if err != nil {
 		return err
 	}

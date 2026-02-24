@@ -1,21 +1,34 @@
 {{define "main"}}
 <main>
-    <form id="signInForm">
-    <fieldset>
-        <legend>Email</legend>
-        <input type="email" 
-               name="email" 
-               id="email"
-               required />
-    </fieldset>
-    <fieldset>
-        <legend>Password</legend>
-        <input type="password" 
-               name="password"
-               id="password"
-               required />
-    </fieldset>
-    <button type="button" id="signInButton">Sign in</button>
-</form>
+    <div class="signIn">
+        <div class="grid">
+            <div class="row" id="email">
+                <div class="label">
+                    <span>Email</span>
+                </div>
+                <div class="input">
+                    <input type="email" 
+                        name="email" 
+                        id="email"
+                        required />
+                </div>
+                <div class="msg">
+                </div>
+            </div>
+            <div class="row" id="pw">
+                <div class="label">
+                    <span>Password</span>
+                </div>
+                <div class="input">
+                    <input type="password" 
+                        name="pw" 
+                        id="pw"
+                        required />
+                </div>
+                <div class="msg">
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
 {{end}}

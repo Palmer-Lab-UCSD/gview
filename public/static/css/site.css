@@ -1,108 +1,142 @@
-.inputBox {
-    margin: 1em;
-    padding: 1.5em;
-    border-radius: 0.75em;
-    border-style: solid;
-    border-width: 0.1em;
-    border-color: #D6D6D6;
+:root {
+    --header-height: 2em;
+    --header-font-size: 20px;
+    --box-border-radius: 0.5em;
+    --btn-padding: 0.5em;    
+    --btn-border-width: 0.1em;
+    --btn-font-size: 15px;
+    --color-theme-font: #424242;
+    --color-theme-dark-grey: #424242;
+    --color-theme-light-grey: #EBEBEB;
+    --color-theme-blue: #005493;
+    --color-theme-default: #147E4C;
+    --color-theme-green: #559C50;
+    --color-black: #000000;
+    --color-white: #FFFFFF;
+    --color-founder-bn: #000000;
+    --color-founder-wn: #02D3D3;
+    --color-founder-wky: #F57C00;
+    --color-founder-mr: #C072D3;
+    --color-founder-m520: #DDCC2A;
+    --color-founder-f344: #388E3C;
+    --color-founder-buf: #1976D2;
+    --color-founder-aci:#D32F2F;
+    --global-padding-left: 1rem;
+    box-sizing: border-box;
+    font-size: 20px;
+    font-family: "Monaco", monospace;
 }
 
-button, .button {
-    display: inline;
-    margin: 1em;
-    padding: 1em;
-    border-radius: 0.75em;
-    border-width: 0.1em;
-    border-color: white;
-    border-style: solid;
-    background-color: #EBEBEB;
-    font-family: sans-serif;
-    font-size: 0.8rem;
+
+body {
+    box-sizing: inherit;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height:100vh;
 }
 
-button:hover, .button:hover {
-    border-color: #D6D6D6;
-    cursor: pointer;
-}
-
-a.button {
-    margin: 1em;
-    padding: 1em;
-    border-radius: 0.75em;
-    border-width: 0.1em;
-    border-color: white;
-    border-style: solid;
-    background-color: #EBEBEB;
-    font-family: sans-serif;
-    font-size: 1rem;
-    color: black;
-    text-decoration: none;
-}
-
-a.button:hover {
-    border-color: #D6D6D6;
-    cursor: pointer;
-    text-decoration: none;
-}
-
-button.query {
-    width:50%;
-    background:white;
-    border-color:#EBEBEB;
-    border-width:.15em;
-}
-button.query:hover {
-    border-color: #424242;
-    cursor: pointer;
-    border-width:.15em;
-    text-decoration: none;
-}
-
-.container {
-    display: grid;
-    grid-template-columns: repeat(12, [col-start] 1fr);
-    gap: 20px;
-    grid-column: col-start / span 12;
-}
-
-@media (min-width: 700px) {
-    .content {
-      grid-column: col-start 4 / span 8;
-      grid-row: 1 / 4;
-    }
-    .side {
-      grid-column: col-start 1 / span 3;
-      grid-row: 1 / 4;
-      position: sticky;
-      top: 1rem;
-    }
-    .main-footer {
-      grid-column: col-start / span 12;
-    }
-    nav ul {
-      flex-direction: column;
-    }
-}
 header {
-    height: 20%;
-}
-
-select.plab {
-    display: inline;
-    margin: 1em;
-    padding: 1em;
-    border-radius: 0.75em;
-    border-width: 0.15em;
-    border-color: #EBEBEB;
-    border-style: solid;
-    background-color: white;
+    background-color: var(--color-theme-white);
+    box-sizing: inherit;
+    color: var(--color-theme-font);
+    font-size: var(--header-font-size);
+    min-height: var(--header-height);
+    padding-bottom: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.5rem;
     width: 100%;
-    font-family: sans-serif;
-    font-size: 1rem;
+    z-index: 1;
 }
 
-select.plab:hover {
-    border-color:#424242;
+/* Note:
+ *  - I don't use "display: inline flex" as the inline corresponds
+ *      to the container and not the flex items (child nodes).
+ *  - Declaring a container "display: flex" sets the direct children
+ *      display to be flex
+ */
+header div {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+header div a {
+    color: var(--color-theme-font);
+    text-decoration: none;
+}
+
+header div a.btn {
+    background-color: var(--color-white);
+    border-radius: var(--box-border-radius);
+    border-width: var(--btn-border-width);
+    border-color: var(--color-theme-light-grey);
+    border-style: solid;
+    color: var(--color-theme-font);
+    font-size: var(--btn-font-size);
+    padding: var(--btn-padding);
+    text-decoration: none;
+}
+
+header div a.btn:hover {
+    border-color: var(--color-theme-light-grey);
+    cursor: pointer;
+    background-color: var(--color-theme-light-grey);
+    color: var(--color-theme-font);
+    text-decoration: none;
+}
+
+
+div#signIn div.grid div.row {
+    display: grid;
+    grid-template-columns: 3fr 3fr 2fr;
+    column-gap: 1em;
+    row-gap: 2em;
+}
+
+div#signIn div.grid div.row div.label {
+    display: flex;
+    justify-content: end;/* main-axis alignment */
+    align-content: center;/* cross-axis alignment */
+}
+
+div#signIn div.grid div.row div.input {
+    display: flex;
+}
+
+div#signIn div.grid div.row span {
+    display: flex;
+    align-self: center;
+}
+
+div#signIn div.grid div.input div.row input {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border-radius: var(--box-border-radius);
+    border-style: solid;
+    border-width: var(--btn-border-width);
+    border-color: #D6D6D6;
+    width: 100%;
+}
+
+div#signIn div.grid div.row div.msg {
+    display: flex;
+    justify-content: start;
+}
+
+
+body > div.spacer {
+    box-sizing: inherit;
+    flex-shrink: 0;
+    flex-grow: 1;
+}
+
+footer {
+    background-color: var(--color-theme-light-grey); 
+    color: var(--color-theme-dark-grey);
+    min-height: 2em;
 }
 
 footer .logo { 
@@ -110,3 +144,115 @@ footer .logo {
     width: 300px;
 }
 
+
+
+
+/*
+.inputBox {
+*     margin: 1em;
+*     padding: 1.5em;
+*     border-radius: 0.75em;
+*     border-style: solid;
+*     border-width: 0.1em;
+*     border-color: #D6D6D6;
+* }
+* 
+* button, .button {
+*     display: inline;
+*     margin: 1em;
+*     padding: 1em;
+*     border-radius: 0.75em;
+*     border-width: 0.1em;
+*     border-color: white;
+*     border-style: solid;
+*     background-color: #EBEBEB;
+*     font-family: sans-serif;
+*     font-size: 0.8rem;
+* }
+* 
+* button:hover, .button:hover {
+*     border-color: #D6D6D6;
+*     cursor: pointer;
+* }
+* 
+* a.button {
+*     margin: 1em;
+*     padding: 1em;
+*     border-radius: 0.75em;
+*     border-width: 0.1em;
+*     border-color: white;
+*     border-style: solid;
+*     background-color: #EBEBEB;
+*     font-family: sans-serif;
+*     font-size: 1rem;
+*     color: black;
+*     text-decoration: none;
+* }
+* 
+* a.button:hover {
+*     border-color: #D6D6D6;
+*     cursor: pointer;
+*     text-decoration: none;
+* }
+* 
+* button.query {
+*     width:50%;
+*     background:white;
+*     border-color:#EBEBEB;
+*     border-width:.15em;
+* }
+* button.query:hover {
+*     border-color: #424242;
+*     cursor: pointer;
+*     border-width:.15em;
+*     text-decoration: none;
+* }
+* 
+* .container {
+*     display: grid;
+*     grid-template-columns: repeat(12, [col-start] 1fr);
+*     gap: 20px;
+*     grid-column: col-start / span 12;
+* }
+* 
+* @media (min-width: 700px) {
+*     .content {
+*       grid-column: col-start 4 / span 8;
+*       grid-row: 1 / 4;
+*     }
+*     .side {
+*       grid-column: col-start 1 / span 3;
+*       grid-row: 1 / 4;
+*       position: sticky;
+*       top: 1rem;
+*     }
+*     .main-footer {
+*       grid-column: col-start / span 12;
+*     }
+*     nav ul {
+*       flex-direction: column;
+*     }
+* }
+* header {
+*     height: 20%;
+* }
+* 
+* select.plab {
+*     display: inline;
+*     margin: 1em;
+*     padding: 1em;
+*     border-radius: 0.75em;
+*     border-width: 0.15em;
+*     border-color: #EBEBEB;
+*     border-style: solid;
+*     background-color: white;
+*     width: 100%;
+*     font-family: sans-serif;
+*     font-size: 1rem;
+* }
+* 
+* select.plab:hover {
+*     border-color:#424242;
+* }
+* 
+*/

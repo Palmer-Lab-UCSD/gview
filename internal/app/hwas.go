@@ -1,9 +1,8 @@
-package api
+package app
 
 import (
 	"fmt"
 	"net/http"
-	"github.com/Palmer-Lab-UCSD/gview/internal/app"
 )
 
 // TODO

@@ -6,12 +6,13 @@ import (
 	"log"
 	"net/http"
 	"os"
+
 	"path/filepath"
 	"github.com/Palmer-Lab-UCSD/gview/internal/config"
 )
 
 type AppLogger struct {
-	*log.Logger
+	log.Logger
 }
 
 func (l *AppLogger) PrintHttpRequest(r *http.Request) {
@@ -33,10 +34,10 @@ func filenameIndex(i int) string {
 
 func getFilesize(filename string) int64 {
 	fid, err := os.Open(filename)
-
 	if os.IsNotExist(err) {
 		return 0
 	}
+    defer fid.Close()
 
 	if err != nil {
 		return -1
@@ -71,9 +72,10 @@ func getLogFilename(dir string, max_filesize int64) string {
 	return prev_name
 }
 
+
 func InitLogger(cfg *config.LogConfig) (*AppLogger, error) {
 
-	logger := &AppLogger{Logger: new(log.Logger)}
+    var logger *AppLogger = new(AppLogger)
 
 	if cfg.Dir == "" {
 		logger.SetOutput(os.Stdout)
@@ -81,6 +83,7 @@ func InitLogger(cfg *config.LogConfig) (*AppLogger, error) {
 		return logger, nil
 	}
 
+    // Note: what is being returned is the empty AppLogger struct
 	out_name := getLogFilename(cfg.Dir, cfg.MaxFileSize)
 	if out_name == "" {
 		return nil, errors.New("Failed to find log filename")
@@ -91,7 +94,9 @@ func InitLogger(cfg *config.LogConfig) (*AppLogger, error) {
 		return nil, err
 	}
 	defer fid.Close()
+
 	logger.SetOutput(fid)
+    logger.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
 	return logger, nil
 }

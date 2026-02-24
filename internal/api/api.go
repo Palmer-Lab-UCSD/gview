@@ -8,56 +8,66 @@ import (
     "path/filepath"
 
 	"github.com/Palmer-Lab-UCSD/gview/internal/config"
+	"github.com/Palmer-Lab-UCSD/gview/internal/logger"
 )
 
 
-type Api struct {
+
+type AuthApi {
     Db      *dbs.Db
     Log     *logger.AppLogger
+    Cfg     *config.AuthConfig
+}
+
+type VisApi {
+    Db      *dbs.Db
+    Log     *logger.AppLogger
+    Cfg     *config.VisConfig
 }
 
 
-func initAuthApi(cfg *config.ConfigName) (*Api, error) {
-	var err error
-	var authApi *Api = new(Api)
+// How to configure auth vs lz patyhs
+func AuthConfig(dbCfg *config.DatabaseConfig, 
+    cfg *config.AuthConfig, 
+    log *logger.AppLogger) (*http.ServeMux, error) {
 
-	if authApi.Log, err = logger.InitLogger(cfg.Log); err != nil {
-		return nil, err
-	}
+    var err error 
+    var authApi *AuthApi = &{Db: new(dbs.Db), Cfg: cfg, Log: log}
 
-	authApi.Db, err = dbs.OpenDbConn(cfg.Db.NetworkSettings,
-        cfg.Db.AuthDb)
-	if err != nil {
-		return nil, err
-	}
-
-	return authApi, nil
-}
-
-
-func Routing(cfg *config.Config) *http.ServeMux {
-    var err error
-
-    var authApi *Api
-    authApi, err = initAuthApi(cfg)
+    err = dbs.OpenDbConn(authApi.Db, dbCfg)
     if err != nil {
-        fmt.Fprintf(os.Stderr, "ERROR: failed to configure auth api")
-        return nil
-    }
-
-    var dbApi *Api  
-    dbApi, err = initDb(cfg)
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "ERROR: failed to configure db api")
-        return nil
+        return nil, err
     }
 
 	var mux *http.ServeMux = http.NewServeMux()
-    mux.HandleFunc("POST /api/auth/isSignInValid", signInFunc(authApi))
-    mux.HandleFunc("POST /api/auth/isValidSession", sessionFunc(dbApi))
 
-    // mux.HandleFunc("/api/gwas", makeGwasHandlerFunc())
-    // mux.HandleFunc("/api/hwas", makeHwasHandlerFunc())
+    mux.HandleFunc("POST /api/auth/isValidSignIn", signInFunc(authApi))
+    // mux.HandleFunc("POST /api/auth/isSession/{user_id}",
+    //    sessionFunc(authApi))
+
+    // mux.HandleFunc("/api/data/gwas", makeGwasHandlerFunc())
+    // mux.HandleFunc("/api/data/hwas", makeHwasHandlerFunc())
+
+    return mux, nil
+}
+
+
+func InitVisMux(dbCfg *config.DatabaseConfig,
+    cfg *config.VisConfig,
+    log *logger.AppLogger) (*http.ServeMux, error) {
+
+    var err error
+    var visApi *VisApi = &{Db: new(dbs.Db), Cfg: cfg, Log: log}
+
+    err = dbs.OpenDbConn(visApi.Db, dbCfg)
+    if err != nil {
+        return nil, err
+    }
+
+	var mux *http.ServeMux = http.NewServeMux()
+
+    // mux.HandleFunc("/api/vis/gwas", makeGwasHandlerFunc())
+    // mux.HandleFunc("/api/data/hwas", makeHwasHandlerFunc())
 
     return mux
 }

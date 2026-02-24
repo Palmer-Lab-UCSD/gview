@@ -14,8 +14,10 @@ import (
     "net/http"
     "flag"
     "path/filepath"
+    "errors"
 
 	"github.com/Palmer-Lab-UCSD/gview/internal/config"
+	"github.com/Palmer-Lab-UCSD/gview/internal/logger"
 	"github.com/Palmer-Lab-UCSD/gview/internal/app"
 	"github.com/Palmer-Lab-UCSD/gview/internal/api"
 )
@@ -47,32 +49,101 @@ func argParser() (bool, string) {
 
 func main() {
 
+    logsToStdout, configFilename := argParser()
 
     var err error
+
     var cfg *config.Config
-    logsToStdout, configFilename := argParser()
+    var logs *logger.AppLogger
+    var errTmpl *ui.GviewTemplate
+
     cfg, err = config.InitConfig(logsToStdout, configFilename)
+	if err != nil {
+        fmt.Fprintf(os.Stderr,
+        "ERROR: failed initalizing config, %s\n", err)
+        os.Exit(1)
+	}
+
+    logs, err = logger.InitLogger(cfg.Log)
+	if err != nil {
+        fmt.Fprintf(os.Stderr,
+        "ERROR: failed initalizing logger, %s\n", err)
+        os.Exit(1)
+	}
+
+    errTmpl, err = ui.InitTemplate(cfg.Ui.TemplatesDir, "error")
+	if err != nil {
+        fmt.Fprintf(os.Stderr,
+        "ERROR: failed initalizing error template, %s\n", err)
+        os.Exit(1)
+	}
+
+    var appSettings *app.App = &app.App{Cfg: cfg, Log: logs, ErrTmpl: errTmpl}
+
+    // Instantiate Authentication API http multiplexer, instantiation
+    // includes establishing a connect to the auth postgres database
+    //
+    // Rememer that http.ServeMux satisfies the http.Handler interface
+    var apiAuthRoutes *http.ServeMux
+    authRoutes, err = api.AuthRoutes(cfg.Db["AuthDb"], cfg.Auth, logs)
+    if err != nil {
+        fmt.Fprintf(os.Stderr,
+        "ERROR: failed initalizing auth database, %s\n", err)
+        os.Exit(2)
+    }
+
+    // Instantiate Visualization API http multiplexer, instantiation
+    // includes establishing a connect to the data postgres database
+    var apiVisRoutes *http.ServeMux
+    apiVisRoutes, err = api.InitVisMux(cfg.Db["DataDb"], cfg.Vis, logs)
+    if err != nil {
+        fmt.Fprintf(os.Stderr,
+        "ERROR: failed initalizing auth database, %s\n", err)
+        os.Exit(2)
+    }
 
     var mux *http.ServeMux = http.NewServeMux()
 
-    mux.Handle("/", app.Routes(cfg))
-    mux.Handle("/api", api.Routes(cfg))
+    mux.Handle("/", app.Routes(appSettings))
+    mux.Handle("/api/auth", apiAuthRoutes)
+    mux.Handle("/api/vis", apiVisRoutes)
 
 
     var addr string = fmt.Sprintf("%s:%s",
-        cfg.Network.HostName,
-        cfg.Network.Port)
+        app.Cfg.Network.HostName,
+        app.Cfg.Network.Port)
 
-    if cfg.ConfigName != "prod" {
-        err = error("Prod server not yet established")
+
+    var srv http.Server
+
+    if appSettings.cfg.ConfigName == "prod" {
+        fmt.Fprintf(os.Stderr, "ERROR: prod app not ready")
+        os.Exit(2)
+        // TODO HEADER for https only Strict-Transport-Security: max-age=604800
+        // srv = http.Server{
+        //     Addr: addr,
+        //     ReadHeaderTimeout: cfg.Network.ReadHeaderTimeout * time.Seconds,
+        //     ReadTimeout: cfg.Network.Readtimeout * time.Seconds,
+        //     WriteTimeout: cfg.Network.WriteTimeout * time.Seconds,
+        //     IdleTimeout: cfg.Network.IdleTimeout * time.Seconds,
+        //     Handler: mux,
+        }
     } else {
-        err = http.ListenAndServe(addr, mux); err != nil {
+        srv = http.Server{
+            Addr: addr,
+            ReadHeaderTimeout: cfg.Network.ReadHeaderTimeout * time.Seconds,
+            ReadTimeout: cfg.Network.Readtimeout * time.Seconds,
+            WriteTimeout: cfg.Network.WriteTimeout * time.Seconds,
+            IdleTimeout: cfg.Network.IdleTimeout * time.Seconds,
+            Handler: mux,
+        }
+
+        if srv.ListenAndServe() != nil {
+            fmt.Fprintf(os.Stderr, "%s\n", err)
+            os.Exit(EXIT_SERVER_ERROR)
+        }
     }
 
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "%s\n", err)
-        os.Exit(EXIT_SERVER_ERROR)
-    }
 
     fmt.Fprintf(os.Stdout, "SERVER STOPED WITHOUT ERROR.")
 }

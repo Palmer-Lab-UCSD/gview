@@ -3,14 +3,20 @@
     "Network" : {
         "HostName" : "localhost",
         "Port" : ":8080",
-        "Certs" : ""
+        "Certs" : "",
+        "ReadTimeout" : 15,
+        "ReadHeaderTimeout" : 5,
+        "WriteTimeout" : 15,
+        "IdleTimeout" : 15
     },
     "Auth" : {
         "Pepper" :  "",
         "BcryptHashCost" : 15
     },
-    "Api" : {
-        "MaxGenomicCoordDomain" : 10000000
+    "Vis" : {
+        "LocusZoom" : {
+            "MaxGenomicCoordDomain" : 10000000
+        }
     },
     "Ui": {
         "StaticDir" : "public/static",
@@ -21,26 +27,35 @@
         "MaxFileSize": 50000000
     },
     "Db": {
-        "NetworkSettings": {
-            "HostName" : "localhost",
-            "Port" : "5432",
-            "SslMode" : "disable",
-            "SslCert": "",
-            "SslKey" : "",
-            "SslRootCert": "",
-            "ConnectionTimeOut": "",
-            "Driver": "postgres"
-        },
         "DataDb": {
-            "Name" : "plab",
+            "Name" : "palmerdata",
             "UserEnvVar" : "DB_UNAME",
-            "PasswdEnvName" : "DB_PASSWD"
+            "PasswdEnvName" : "DB_PASSWD",
+            "NetworkSettings": {
+                "HostName" : "localhost",
+                "Port" : "5432",
+                "SslMode" : "disable",
+                "SslCert": "",
+                "SslKey" : "",
+                "SslRootCert": "",
+                "ConnectionTimeOut": "",
+                "Driver": "postgres"
+            }
         },
         "AuthDb": {
             "Name": "users",
             "UserEnvVar": "DB_UNAME",
-            "PasswdEnvName" : "DB_PASSWD"
+            "PasswdEnvName" : "DB_PASSWD",
+            "NetworkSettings": {
+                "HostName" : "localhost",
+                "Port" : "5432",
+                "SslMode" : "disable",
+                "SslCert": "",
+                "SslKey" : "",
+                "SslRootCert": "",
+                "ConnectionTimeOut": "",
+                "Driver": "postgres"
+            }
         }
     }
-    
 }

@@ -6,13 +6,24 @@ import (
     "net/mail"
     "golang.org/x/crypto/bcrypt"
 
-    "github.com/Palmer-Lab-UCSD/internal/dbs"
+    // "github.com/Palmer-Lab-UCSD/internal/dbs"
 )
+
 
 type ResponseSignIn {
     requestUrl  string
 }
 
+
+func isValidEmail(email string) bool {
+
+}
+
+
+func decomposeEmail(emailAddressStr string) {
+    address, err := mail.ParseAddress(emailAddressStr)
+
+}
 
 func isValidSignIn(email string, password string) bool {
     emailAddress, err := mail.ParseAddress(email)
@@ -32,17 +43,33 @@ func isValidSignIn(email string, password string) bool {
 
 
 // Verify user sign in credentials.
+// Sign in credentials are stored in a form and submitted using the
+// fetch API
 //
 // A response should:
 //  * Discloses the validity of user credentials through http status
 //      codes.  Status code of 200 indicates match, 
 func signInFunc(api *Api) func(http.ResponseWriter, *http.Request) {
     
-    var res ResponseSignIn
+    // I think declaring variables once, would cause a race condition,
+    // as they would be shared accross all threads.  Need to double 
+    // check
+    // var res ResponseSignIn
+    // var cookie *http.Cookie
+    // var err error
 
     return func (w http.ResponseWriter, r *http.Request) {
-        //TODO CHECK IF USER IS ALREADY LOGGED IN
 
+        // A user is logged in if they have an active session_id
+        // cookie, otherwise user is needs to sign in
+        var res ResponseSignIn
+        var cookie *http.Cookie
+        var err error
+        cookie, err = r.Cookie("session_id")
+        if err == http.ErrNoCookie || isAcitveSession(cookie) {
+            // TODO NEED TO SUBSTITUTE USER ID
+            res = ResponseSignIn("/workspace/{user_id}")
+        }
 
         api.Log.PrintHttpRequest(r)
 
@@ -80,4 +107,9 @@ func signInFunc(api *Api) func(http.ResponseWriter, *http.Request) {
     }
 }
 
+func sessionFunc(api *Api) func(w http.ResponseWriter, r *http.Request) {
 
+    return func(w http.ResponseWriter, r *http.Request) {
+        
+    }
+}

@@ -7,9 +7,13 @@ import (
 )
 
 type NetworkConfig struct {
-	HostName    string
-	Port        string
-    Certs       string
+	HostName            string
+	Port                string
+    Certs               string
+    ReadTimeout         uint8
+    ReadHeaderTimeout   uint8
+    WriteTimeout        uint8
+    IdleTimeout         uint8
 }
 
 type AuthConfig struct {
@@ -17,9 +21,14 @@ type AuthConfig struct {
     BcryptHashCost  uint8
 }
 
-type ApiConfig struct {
+type LocusZoomConfig struct {
     MaxGenomicCoordDomain   uint64
 }
+
+type VisConfig struct {
+    LocusZoom       *LocusZoomConfig
+}
+
 
 type UiConfig struct {
     StaticDir       string
@@ -43,15 +52,10 @@ type DatabaseNetwork struct {
 }
 
 type DatabaseConfig struct {
-	Name              string
-	UserEnvVar        string
-	PasswdEnvVar      string
-}
-
-type Databases struct {
+    Name                string
+    UserEnvVar          string
+    PasswdEnvVar        string
     NetworkSettings     *DatabaseNetwork
-    DataDb              *DatabaseConfig
-    AuthDb              *DatabaseConfig
 }
 
 
@@ -59,23 +63,21 @@ type Config struct {
     ConfigName  string
     Network     *NetworkConfig
     Auth        *AuthConfig
-	Api         *ApiConfig
+	Vis         *VisConfig
     Ui          *UiConfig
 	Log         *LogConfig
-	Db          *Databases
+	Db          map[string]*DatabaseConfig
 }
 
 func NewCfg() *Config {
     return &Config{ConfigName: "",
-        Ui: new(UiConfig),
-        Network: new(NetworkConfig),
-        Auth: new(AuthConfig),
-        Api: new(ApiConfig),
-		Log: new(LogConfig),
-        Db:  &Databases{NetworkSettings: new(NetworkConfig),
-                        DataDb: new(DatabaseConfig),
-                        AuthDb: new(DatabaseConfig)}}
-}
+        Ui:         new(UiConfig),
+        Network:    new(NetworkConfig),
+        Auth:       new(AuthConfig),
+        Vis:        new(VisConfig),
+		Log:        new(LogConfig),
+        Db:         make(map[string]*DatabaseConfig)}
+}        
 
 func readConfig(filename string, cfg *Config) error {
 	fid, err := os.Open(filename)
@@ -98,7 +100,7 @@ func readConfig(filename string, cfg *Config) error {
 
 func InitConfig(logsToStdout bool, configFilename string) (*Config, error) {
 
-	cfg := NewCfg()
+	var cfg *Config = NewCfg()
 	var err error
 
 	if err = readConfig(configFilename, cfg); err != nil {

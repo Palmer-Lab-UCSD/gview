@@ -5,35 +5,54 @@
 package app
 
 import (
-    "error"
+    "errors"
 	"fmt"
 	"net/http"
 	"os"
 
 	"github.com/Palmer-Lab-UCSD/gview/internal/config"
 	"github.com/Palmer-Lab-UCSD/gview/internal/logger"
+	"github.com/Palmer-Lab-UCSD/gview/internal/ui"
 )
 
-
-// App structs holds information required for running the application,
-// and is meant to be passed to services
+type HandleFunc func(http.ResponseWriter, *http.Request)
 
 
-func Routing(cfg *config.Config) *http.ServeMux {
+type App struct {
+    Cfg         *config.Config
+    Log         *log.Logger
+    ErrTmpl     *ui.GviewTemplate
+}
+
+
+func InitApp(cfg *config.Config,
+    log *logger.AppLogger, 
+    errTmpl *ui.GviewTemplate) *App {
+
+    // appd is short hand for app data
+    var appd *App = new(App)
+
+    appd.Cfg = cfg
+	appd.Log = logs
+    appd.ErrTmpl = errTmpl
+
+    return appd
+}
+
+
+func Routes(appd *App) *http.ServeMux {
     var err error
-    var logs *logger.AppLogger
 
-    logs, err = logger.InitLogger(cfg)
 	var mux *http.ServeMux = http.NewServeMux()
 
-	mux.HandleFunc("GET /", makeHomeFunc(logs))
-	mux.HandleFunc("GET /signIn", makeSignInFunc(logs))
-	mux.HandleFunc("GET /workspace", makeWorkspaceFunc(logs))
-    mux.HandleFunc("GET /error", makeErrorHandler(logs))
+	mux.HandleFunc("GET /", makeHomePageFunc(appd))
+	mux.HandleFunc("GET /signIn", makeSignInPageFunc(appd))
+	mux.HandleFunc("GET /workspace/{user_id}", makeWorkspacePageFunc(appd))
 
 	mux.Handle("GET /public/static/",
 		http.StripPrefix("/public/static",
-			http.FileServer(http.Dir(cfg.Ui.StaticDir))))
+			http.FileServer(http.Dir(appd.Cfg.Ui.StaticDir))))
 
     return mux
 }
+

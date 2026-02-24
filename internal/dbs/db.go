@@ -14,13 +14,12 @@ type Db struct{
 	*sql.DB
 }
 
-func mkDbLoginStr(networkCfg *config.DatabaseNetwork, 
-                dbCfg *config.DatabaseConfig) string {
-s := fmt.Sprintf("dbname=%s host=%s port=%s sslmode=%s",
+func mkDbLoginStr(dbCfg *config.DatabaseConfig) string {
+    s := fmt.Sprintf("dbname=%s host=%s port=%s sslmode=%s",
 		dbCfg.Name,
-		networkCfg.HostName,
-		networkCfg.Port,
-		networkCfg.SslMode)
+		dbCfg.NetworkSettings.HostName,
+		dbCfg.NetworkSettings.Port,
+		dbCfg.NetworkSettings.SslMode)
 	var val string
 
 	if val = os.Getenv(dbCfg.UserEnvVar); val != "" {
@@ -31,20 +30,20 @@ s := fmt.Sprintf("dbname=%s host=%s port=%s sslmode=%s",
 		s = fmt.Sprintf("%s password=%s", s, val)
 	}
 
-	if networkCfg.SslCert != "" {
-		s = fmt.Sprintf("%s sslcert=%s", s, networkCfg.SslCert)
+	if dbCfg.NetworkSettings.SslCert != "" {
+		s = fmt.Sprintf("%s sslcert=%s", s, dbCfg.NetworkSettings.SslCert)
 	}
 
-	if networkCfg.SslKey != "" {
-		s = fmt.Sprintf("%s sslkey=%s", s, networkCfg.SslKey)
+	if dbCfg.NetworkSettings.SslKey != "" {
+		s = fmt.Sprintf("%s sslkey=%s", dbCfg.NetworkSettings.SslKey)
 	}
 
-	if networkCfg.SslRootCert != "" {
-		s = fmt.Sprintf("%s sslrootcert=%s", s, networkCfg.SslRootCert)
+	if dbCfg.NetworkSettings.SslRootCert != "" {
+		s = fmt.Sprintf("%s sslrootcert=%s", s, dbCfg.NetworkSettings.SslRootCert)
 	}
 
-	if networkCfg.ConnectionTimeOut != "" {
-		s = fmt.Sprintf("%s connection_timeout=%s", s, networkCfg.SslKey)
+	if db.NetworkSettings.ConnectionTimeOut != "" {
+		s = fmt.Sprintf("%s connection_timeout=%s", s, dbCfg.NetworkSettings.SslKey)
 	}
 
 	return s
@@ -53,11 +52,9 @@ s := fmt.Sprintf("dbname=%s host=%s port=%s sslmode=%s",
 // I need to  update all database connecctions to meet the new 
 // more generalized approach
 
-func OpenDbConn(db *Db,
-            networkCfg *config.DatabaseNetwork,
-            dbCfg *config.DatabaseConfig) error {
+func OpenDbConn(db *Db, dbCfg *config.DatabaseConfig) error {
 
-	db.DB, err := sql.Open(networkCfg.Driver, mkDbLoginStr(networkCfg, dbCfg))
+	db.DB, err := sql.Open(db.Cfg.NetworkSettings.Driver, mkDbLoginStr(dbCfg))
 	if err != nil {
 		return err
 	}
