@@ -10,20 +10,23 @@ import (
 	"database/sql"
     "errors"
     "time"
-	"os"
+    "crypto/sha512"
 
 	_ "github.com/lib/pq"
 	"github.com/Palmer-Lab-UCSD/gview/internal/config"
 )
 
 
-type Date time.Time
+const (
+   NANOSECONDS_PER_SECOND = 1000000000 
+)
+
 
 type UserRecord struct {
     UserId      string
     Email       string
     Pw          string
-    PwExpiry    Date
+    PwExpiry    time.Time
     Verified    bool
 }
 
@@ -31,20 +34,22 @@ type UserRecord struct {
 type SessionRecord struct {
     UserId          string
     SessionId       string
-    LastActivity    Date 
-    InactiveExpiry  Date
-    SessionExpiry   Date
+    LastActive      time.Time
+    InactiveExpiry  time.Time
+    SessionExpiry   time.Time
     Active          bool
 }
 
 
+// Note that all int64 times need to be in nanoseconds
 type AuthDb struct {
-    *sql.DB
+    sql.DB
+    config.AuthConfig
 }
 
 // RETURN
 // nil, nil means there is no record found
-func (db *AuthDb) GetUserFromEmail(email, string) (*UserRecord, error) {
+func (db *AuthDb) GetUserFromEmail(email string) (*UserRecord, error) {
     
     var err error
     var rec UserRecord
@@ -67,53 +72,99 @@ func (db *AuthDb) GetUserFromEmail(email, string) (*UserRecord, error) {
 }
 
 
-func(db *AuthDb) IsSessionActive(useId string, sessionId string) bool {
+func (db *AuthDb) IsValidSignIn(email string, pw string) (bool, error) {
+    err = bcrypt.CompareHashAndPassword(hashPw, []byte(pepperedPassword))
+    if err == nil {
+        return true
+    }
+}
+
+
+// Checks whether session is active and updates database accordingly
+//
+// If current session is active and the current time is less than
+// the session expiry and inactivity expiry then evaluate to true,
+// else false.  This is important, cases that I don't account for
+// will default to false.
+func(db *AuthDb) IsSessionActive(userId string, sessionId string) (bool, error) {
     var err error
-    var rec SessionValidateRec
+    var rec SessionRecord
+    var res sql.Result
+
+    // Note: sha256.Size is 32 
+    // Note: sha512.Size is 64
+    var shaSumSessionId [sha512.Size]byte = sha512.Sum512([]byte(sessionId))
 
     err = db.QueryRow(`SELECT 
     FROM sessions 
     WHERE user_id = $1 AND session_id = $2;
-    `, userId, sessionId).Scan(&rec.UserId,
+    `, userId, shaSumSessionId).Scan(&rec.UserId,
         &rec.SessionId,
-        &rec.LastActivity,
+        &rec.LastActive,
         &rec.InactiveExpiry,
         &rec.SessionExpiry,
         &rec.Active)
     if err == sql.ErrNoRows || !rec.Active {
-        return false
+        return false, nil
     }
 
     // ASSUMPTION: from this point forward, rec.Active in the
     // database is assumed true
 
-    //TODO: I need to update the database when active to inactive state
-    // need current date timed. Duration += CurrentTime - Last actvity
-    var currentTime time.Time = time.Now()
-    if currentTime > rec.InactiveExpiry 
-        || currentTime > rec.SessionExpiry {
-        
-        rec.Active = false
+    // Handle case when session is not expired
+    var now time.Time = time.Now()
+    if now.Before(rec.InactiveExpiry) && now.Before(rec.SessionExpiry) {
+
+        // Updating the database InactiveExpiry column for every
+        // database transaction seems too expensive.  I am going to
+        // update after a UpdateTimeCriterion amount of time
+        if now.Sub(rec.InactiveExpiry) > db.MinTimeUpdateDbActivity {
+
+            rec.InactiveExpiry = now.Add(db.MaxTimeInactive)
+            // TODO: Update db
+            // TODO: Consider submitting database update concurrently
+            //      using goroutine
+
+            db.Exec(`UPDATE sessions SET last_active = $1
+            WHERE user_id = $2 AND session_id = $3;`, now, userId, shaSumSessionId)
+
+            if err != nil {
+                return false, err
+            } else if rows, err := res.RowsAffected(); rows != 1 || err != nil {
+                return false, errors.New("Matched more than one row")
+            }
+        }
+
+        return true, nil
     } 
 
-    var delta Date = currentTime - rec.InactiveExpiry
-    // When confined to a single time zone 
-    if delta < 0 {
-        rec.Active = false
+    // Handle all other cases, I assume that they indicate session 
+    // has expired. Consequently, active being true in the database
+    // needs to be updated to false
+    // TODO: Consider submitting database update concurrently
+    //      using goroutine
+    res, err = db.Exec(`UPDATE sessions SET active = false
+    WHERE user_id = $1 AND session_id = $2;`, userId, shaSumSessionId)
+
+    return false, nil
+}
+
+
+func OpenAuthDbConn(dbCfg *config.DatabaseConfig, 
+    authCfg config.AuthConfig) (*AuthDb, error) {
+
+    var dbptr *sql.DB
+
+    if err := OpenDbConn(dbptr, dbCfg); err != nil {
+        return nil, err
     }
 
-    // Update the database because session has been deactivated
-    if !rec.Active {
-        adfa
-    }
+    // need to convert time in seconds to nanoseconds so that I can use
+    // golang time package for computing time differences
+    authCfg.MaxTimeInactive = authCfg.MaxTimeInactive / NANOSECONDS_PER_SECOND
+    authCfg.MaxTimeSessionOpen = authCfg.MaxTimeSessionOpen / NANOSECONDS_PER_SECOND
+    authCfg.MinTimeUpdateDbActivity = authCfg.MaxTimeSessionOpen / NANOSECONDS_PER_SECOND
 
-    // Updating the database InactiveExpiry column for every
-    // database transaction seems too expensive.  I am going to
-    // update after a UpdateTimeCriterion amount of time
-    if delta > UpdateInactiveExpiryTimeCriterion {
-        rec.InactiveExpiry = currentTime + MaxInactiveTime 
-    }
-
-
+    return &AuthDb{*dbptr, authCfg}, nil
 }
 

@@ -10,35 +10,19 @@ import (
 )
 
 
-type ResponseSignIn {
+type ResponseSignIn struct {
     requestUrl  string
 }
 
 
 func isValidEmail(email string) bool {
-
+    return false
 }
 
 
 func decomposeEmail(emailAddressStr string) {
     address, err := mail.ParseAddress(emailAddressStr)
 
-}
-
-func isValidSignIn(email string, password string) bool {
-    emailAddress, err := mail.ParseAddress(email)
-    if err != nil {
-        return false
-    }
-    
-    hashPw     
-
-    err = bcrypt.CompareHashAndPassword(hashPw, []byte(pepperedPassword))
-    if err == nil {
-        return true
-    }
-
-    return fail
 }
 
 
@@ -49,14 +33,13 @@ func isValidSignIn(email string, password string) bool {
 // A response should:
 //  * Discloses the validity of user credentials through http status
 //      codes.  Status code of 200 indicates match, 
-func signInFunc(api *Api) func(http.ResponseWriter, *http.Request) {
+func verifySignInFunc(api *AuthApi) func(http.ResponseWriter, *http.Request) {
     
     // I think declaring variables once, would cause a race condition,
     // as they would be shared accross all threads.  Need to double 
     // check
     // var res ResponseSignIn
     // var cookie *http.Cookie
-    // var err error
 
     return func (w http.ResponseWriter, r *http.Request) {
 
@@ -65,10 +48,13 @@ func signInFunc(api *Api) func(http.ResponseWriter, *http.Request) {
         var res ResponseSignIn
         var cookie *http.Cookie
         var err error
+        var isSignedIn bool
+
         cookie, err = r.Cookie("session_id")
-        if err == http.ErrNoCookie || isAcitveSession(cookie) {
-            // TODO NEED TO SUBSTITUTE USER ID
-            res = ResponseSignIn("/workspace/{user_id}")
+        if err != http.ErrNoCookie {
+            // TODO: check session id return to workspace
+            isSignedIn, err = api.Db.IsSessionActive(userID, )
+            if err 
         }
 
         api.Log.PrintHttpRequest(r)

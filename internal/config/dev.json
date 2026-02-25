@@ -9,14 +9,17 @@
         "WriteTimeout" : 15,
         "IdleTimeout" : 15
     },
-    "Auth" : {
-        "Pepper" :  "",
-        "BcryptHashCost" : 15
-    },
     "Vis" : {
         "LocusZoom" : {
             "MaxGenomicCoordDomain" : 10000000
         }
+    },
+    "Auth" : {
+        "Pepper" :  "",
+        "BcryptHashCost" : 15,
+        "MaxTimeInactive" : 129600,
+        "MaxTimeSessionOpen": 604800,
+        "MinTimeUpdateDbActivit": 3600
     },
     "Ui": {
         "StaticDir" : "public/static",
@@ -31,7 +34,7 @@
             "Name" : "palmerdata",
             "UserEnvVar" : "DATA_DB_UNAME",
             "PasswdEnvName" : "DATA_DB_PASSWD",
-            "NetworkSettings": {
+            "Connection": {
                 "HostName" : "localhost",
                 "Port" : "5432",
                 "SslMode" : "disable",
@@ -46,7 +49,7 @@
             "Name": "auth",
             "UserEnvVar": "AUTH_DB_UNAME",
             "PasswdEnvName" : "AUTH_DB_PASSWD",
-            "NetworkSettings": {
+            "Connection": {
                 "HostName" : "gviewdb",
                 "Port" : "5432",
                 "SslMode" : "disable",

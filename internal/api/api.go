@@ -9,39 +9,41 @@ import (
 
 	"github.com/Palmer-Lab-UCSD/gview/internal/config"
 	"github.com/Palmer-Lab-UCSD/gview/internal/logger"
+	"github.com/Palmer-Lab-UCSD/gview/internal/dbs"
 )
 
 
 
-type AuthApi {
-    Db      *dbs.Db
+type AuthApi struct {
+    Db      *dbs.AuthDb
     Log     *logger.AppLogger
     Cfg     *config.AuthConfig
 }
 
-type VisApi {
-    Db      *dbs.Db
+type VisApi struct {
+    Db      *dbs.DataDb
     Log     *logger.AppLogger
     Cfg     *config.VisConfig
 }
 
 
 // How to configure auth vs lz patyhs
-func AuthConfig(dbCfg *config.DatabaseConfig, 
+func AuthRoutes(dbCfg *config.DatabaseConfig, 
     cfg *config.AuthConfig, 
     log *logger.AppLogger) (*http.ServeMux, error) {
 
     var err error 
-    var authApi *AuthApi = &{Db: new(dbs.Db), Cfg: cfg, Log: log}
-
-    err = dbs.OpenDbConn(authApi.Db, dbCfg)
+    var authApi *AuthApi = new(AuthApi)
+    authApi.Db, err = dbs.OpenAuthDbConn(dbCfg, *cfg)
     if err != nil {
         return nil, err
     }
+    authApi.Log = log
+    authApi.Cfg = cfg
 
 	var mux *http.ServeMux = http.NewServeMux()
 
-    mux.HandleFunc("POST /api/auth/isValidSignIn", signInFunc(authApi))
+    mux.HandleFunc("POST /api/auth/verifySignIn", verifySignInFunc(authApi))
     // mux.HandleFunc("POST /api/auth/isSession/{user_id}",
     //    sessionFunc(authApi))
 
@@ -52,23 +54,25 @@ func AuthConfig(dbCfg *config.DatabaseConfig,
 }
 
 
-func InitVisMux(dbCfg *config.DatabaseConfig,
+func VisRoutes(dbCfg *config.DatabaseConfig,
     cfg *config.VisConfig,
     log *logger.AppLogger) (*http.ServeMux, error) {
 
     var err error
-    var visApi *VisApi = &{Db: new(dbs.Db), Cfg: cfg, Log: log}
+    var visApi *VisApi = new(VisApi)
 
-    err = dbs.OpenDbConn(visApi.Db, dbCfg)
+    visApi.Db, err = dbs.OpenDataDbConn(dbCfg)
     if err != nil {
         return nil, err
     }
+    visApi.Cfg = cfg
+    visApi.Log = log
 
 	var mux *http.ServeMux = http.NewServeMux()
 
     // mux.HandleFunc("/api/vis/gwas", makeGwasHandlerFunc())
     // mux.HandleFunc("/api/data/hwas", makeHwasHandlerFunc())
 
-    return mux
+    return mux, nil
 }
 

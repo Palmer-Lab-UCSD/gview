@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"os"
+    "time"
 )
 
 type NetworkConfig struct {
@@ -16,11 +17,13 @@ type NetworkConfig struct {
     IdleTimeout         uint8
 }
 
+// All times are reported as seconds
 type AuthConfig struct {
-    Pepper              string
-    BcryptHashCost      uint8
-    MaxTimeSessionOpen
-    MaxTimeInactive
+    Pepper                      string
+    BcryptHashCost              uint8
+    MaxTimeSessionOpen          time.Duration
+    MaxTimeInactive             time.Duration
+    MinTimeUpdateDbActivity     time.Duration
 }
 
 type LocusZoomConfig struct {
@@ -42,7 +45,7 @@ type LogConfig struct {
 	MaxFileSize int64
 }
 
-type DatabaseNetwork struct {
+type DatabaseConn struct {
 	Driver            string
 	HostName          string
 	Port              string
@@ -57,7 +60,7 @@ type DatabaseConfig struct {
     Name                string
     UserEnvVar          string
     PasswdEnvVar        string
-    NetworkSettings     *DatabaseNetwork
+    Connection          *DatabaseConn   
 }
 
 

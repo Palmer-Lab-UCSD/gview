@@ -5,35 +5,31 @@
 package app
 
 import (
-    "errors"
-	"fmt"
 	"net/http"
-	"os"
+    "html/template"
 
 	"github.com/Palmer-Lab-UCSD/gview/internal/config"
 	"github.com/Palmer-Lab-UCSD/gview/internal/logger"
-	"github.com/Palmer-Lab-UCSD/gview/internal/ui"
 )
 
-type HandleFunc func(http.ResponseWriter, *http.Request)
 
 
 type App struct {
     Cfg         *config.Config
-    Log         *log.Logger
-    ErrTmpl     *ui.GviewTemplate
+    Log         *logger.AppLogger
+    ErrTmpl     *template.Template
 }
 
 
 func InitApp(cfg *config.Config,
     log *logger.AppLogger, 
-    errTmpl *ui.GviewTemplate) *App {
+    errTmpl *template.Template) *App {
 
     // appd is short hand for app data
     var appd *App = new(App)
 
     appd.Cfg = cfg
-	appd.Log = logs
+	appd.Log = log
     appd.ErrTmpl = errTmpl
 
     return appd
@@ -41,8 +37,6 @@ func InitApp(cfg *config.Config,
 
 
 func Routes(appd *App) *http.ServeMux {
-    var err error
-
 	var mux *http.ServeMux = http.NewServeMux()
 
 	mux.HandleFunc("GET /", makeHomePageFunc(appd))

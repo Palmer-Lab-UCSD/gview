@@ -85,7 +85,7 @@ func main() {
     //
     // Rememer that http.ServeMux satisfies the http.Handler interface
     var apiAuthRoutes *http.ServeMux
-    authRoutes, err = api.AuthRoutes(cfg.Db["AuthDb"], cfg.Auth, logs)
+    apiAuthRoutes, err = api.AuthRoutes(cfg.Db["AuthDb"], cfg.Auth, logs)
     if err != nil {
         fmt.Fprintf(os.Stderr,
         "ERROR: failed initalizing auth database, %s\n", err)
@@ -95,7 +95,7 @@ func main() {
     // Instantiate Visualization API http multiplexer, instantiation
     // includes establishing a connect to the data postgres database
     var apiVisRoutes *http.ServeMux
-    apiVisRoutes, err = api.InitVisMux(cfg.Db["DataDb"], cfg.Vis, logs)
+    apiVisRoutes, err = api.VisRoutes(cfg.Db["DataDb"], cfg.Vis, logs)
     if err != nil {
         fmt.Fprintf(os.Stderr,
         "ERROR: failed initalizing auth database, %s\n", err)

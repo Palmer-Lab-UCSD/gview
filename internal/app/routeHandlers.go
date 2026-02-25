@@ -1,38 +1,38 @@
 package app
 
 import (
-    "fmt"
+    "errors"
     "net/http"
+    "html/template"
 
     "github.com/Palmer-Lab-UCSD/gview/internal/ui"
 )
 
 
-type ErrInfo {
+type ErrInfo struct {
     Code    int
     Title   string
     Msg     string
 }
 
 
-func makeHomePageFunc(appd *App) HandleFunc {
-    var tmpl *ui.GviewTemplate 
+func makeHomePageFunc(appd *App) func(http.ResponseWriter, *http.Request) {
+    var tmpl *template.Template
     var err error
 
-    tmpl, err = ui.InitTemplate(appd.Cfg.Ui.TemplatesDir, tmplPage)
+    tmpl, err = ui.InitTemplate(appd.Cfg.Ui.TemplatesDir, "home")
 
     if err != nil {
         appd.Log.Fatalln(err)
     }
 
-    return func(w http.ResponseWriter, *r http.Request) {
+    return func(w http.ResponseWriter, r *http.Request) {
 		appd.Log.PrintHttpRequest(r)
-        var header *http.Header = w.Header()
 
         if tmpl.Execute(w, nil) != nil {
-            appd.Log.PrintError("execute home template failure")
+            appd.Log.PrintError(errors.New("execute home template failure"))
 
-            var errInfo ErrInfo{Code: http.StatusInternalServerError,
+            var errInfo ErrInfo = ErrInfo{Code: http.StatusInternalServerError,
                 Title: http.StatusText(http.StatusInternalServerError),
                 Msg: "Sorry, problem on our end, please contact maintainer."}
 
@@ -44,7 +44,7 @@ func makeHomePageFunc(appd *App) HandleFunc {
 }
 
 
-func makeSignInPageFunc(appd *App) HandleFunc {
+func makeSignInPageFunc(appd *App) func(http.ResponseWriter, *http.Request) {
 
     tmpl, err := ui.InitTemplate(appd.Cfg.Ui.TemplatesDir, "signIn")
 
@@ -52,13 +52,13 @@ func makeSignInPageFunc(appd *App) HandleFunc {
         appd.Log.Fatalln(err)
     }
 
-    return func(w http.ResponseWriter, *r http.Request) {
+    return func(w http.ResponseWriter, r *http.Request) {
 		appd.Log.PrintHttpRequest(r)
 
         if tmpl.Execute(w, nil) != nil {
-            appd.Log.PrintError("execute sign in template failure")
+            appd.Log.PrintError(errors.New("execute sign in template failure"))
 
-            var errInfo ErrInfo{Code: http.StatusInternalServerError,
+            var errInfo ErrInfo = ErrInfo{Code: http.StatusInternalServerError,
                 Title: http.StatusText(http.StatusInternalServerError),
                 Msg: "Sorry, problem on our end, please contact maintainer."}
 
@@ -70,13 +70,13 @@ func makeSignInPageFunc(appd *App) HandleFunc {
 }
 
 
-func makeWorkspacePageFunc(appd *App) HandleFunc {
+func makeWorkspacePageFunc(appd *App) func(http.ResponseWriter, *http.Request) {
     return func(w http.ResponseWriter, r *http.Request) {
-        appd.Log.PrintError("execute workspace template failure")
+        appd.Log.PrintError(errors.New("execute workspace template failure"))
 
-        var errInfo ErrInfo{Code: http.StatusInternalServerError,
+        var errInfo ErrInfo = ErrInfo{Code: http.StatusInternalServerError,
             Title: http.StatusText(http.StatusInternalServerError),
-            Msg: "Note implemented"error}
+            Msg: "Note implemented"}
 
         w.WriteHeader(errInfo.Code)
 

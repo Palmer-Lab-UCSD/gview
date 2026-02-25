@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"os"
 
 	_ "github.com/lib/pq"
 	"github.com/Palmer-Lab-UCSD/gview/internal/config"
@@ -57,7 +56,7 @@ type ChrStats struct {
 
 // Satisfies the Db interface definition
 type DataDb struct {
-    *sql.DB
+    sql.DB
 }
 
 func (db *DataDb) isValidSchema(schema string) error {
@@ -416,4 +415,16 @@ func GetChrStats(schema string,
 	}
 
 	return &chrStats, nil
+}
+
+
+func OpenDataDbConn(dbCfg *config.DatabaseConfig) (*DataDb, error) {
+    var dbptr *sql.DB
+
+    if err := OpenDbConn(dbptr, dbCfg); err != nil {
+        return nil, err
+    }
+
+    var dataptr *DataDb = &DataDb{*dbptr}
+    return dataptr, nil
 }
