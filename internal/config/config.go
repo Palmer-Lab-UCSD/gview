@@ -17,8 +17,10 @@ type NetworkConfig struct {
 }
 
 type AuthConfig struct {
-    Pepper          string
-    BcryptHashCost  uint8
+    Pepper              string
+    BcryptHashCost      uint8
+    MaxTimeSessionOpen
+    MaxTimeInactive
 }
 
 type LocusZoomConfig struct {

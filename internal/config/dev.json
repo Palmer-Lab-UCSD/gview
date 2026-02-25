@@ -29,8 +29,8 @@
     "Db": {
         "DataDb": {
             "Name" : "palmerdata",
-            "UserEnvVar" : "DB_UNAME",
-            "PasswdEnvName" : "DB_PASSWD",
+            "UserEnvVar" : "DATA_DB_UNAME",
+            "PasswdEnvName" : "DATA_DB_PASSWD",
             "NetworkSettings": {
                 "HostName" : "localhost",
                 "Port" : "5432",
@@ -43,11 +43,11 @@
             }
         },
         "AuthDb": {
-            "Name": "users",
-            "UserEnvVar": "DB_UNAME",
-            "PasswdEnvName" : "DB_PASSWD",
+            "Name": "auth",
+            "UserEnvVar": "AUTH_DB_UNAME",
+            "PasswdEnvName" : "AUTH_DB_PASSWD",
             "NetworkSettings": {
-                "HostName" : "localhost",
+                "HostName" : "gviewdb",
                 "Port" : "5432",
                 "SslMode" : "disable",
                 "SslCert": "",

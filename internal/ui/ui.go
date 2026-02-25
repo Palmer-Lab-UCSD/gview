@@ -1,20 +1,17 @@
 package ui
 
 import (
-    "fmt"
     "path/filepath"
     "html/template"
 )
 
-type GviewTemplate template.Template 
-
-func InitTemplate(tmplDir string, tmplPage string) (*GviewTemplate, error) {
+func InitTemplate(tmplDir string, tmplPage string) (*template.Template, error) {
     var err error
-    var tmpl GviewTemplate
+    var tmpl *template.Template
 
     pageDir := filepath.Join(tmplDir, tmplPage)
 
-    tmpl, err := template.ParseFiles(filepath.Join(tmplDir, "base.html"), 
+    tmpl, err = template.ParseFiles(filepath.Join(tmplDir, "base.html"), 
         filepath.Join(tmplDir, "footer.html"),
         filepath.Join(pageDir, "header.html"),
         filepath.Join(pageDir, "jsLinks.html"),
@@ -23,6 +20,6 @@ func InitTemplate(tmplDir string, tmplPage string) (*GviewTemplate, error) {
         return nil, err
     }
     
-    return &tmpl, nil
+    return tmpl, nil
 }
 

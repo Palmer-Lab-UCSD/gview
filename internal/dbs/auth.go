@@ -1,3 +1,9 @@
+// Database records for user session management
+// 
+// Assumptions:
+//  * All times recorded as UTC, so that I don't have time-zone
+//      issues.
+//
 package dbs
 
 import (
@@ -11,13 +17,6 @@ import (
 )
 
 
-// one week
-const (
-    MAX_OPEN_SESSION
-    MAX_INACTIVITY
-)
-
-
 type Date time.Time
 
 type UserRecord struct {
@@ -28,16 +27,18 @@ type UserRecord struct {
     Verified    bool
 }
 
+
 type SessionRecord struct {
     UserId          string
     SessionId       string
     LastActivity    Date 
-    Duration        float32
+    InactiveExpiry  Date
+    SessionExpiry   Date
     Active          bool
 }
 
 
-type AuthDb stuct {
+type AuthDb struct {
     *sql.DB
 }
 
@@ -68,29 +69,51 @@ func (db *AuthDb) GetUserFromEmail(email, string) (*UserRecord, error) {
 
 func(db *AuthDb) IsSessionActive(useId string, sessionId string) bool {
     var err error
-    var rec SessionRecord
+    var rec SessionValidateRec
 
-    err = db.QueryRow(`SELECT last_activity, duration, active 
+    err = db.QueryRow(`SELECT 
     FROM sessions 
     WHERE user_id = $1 AND session_id = $2;
-    `, 
-    userId, sessionId).Scan(&rec.LastActivity,
-                            &rec.Duration,
-                            &rec.Active)
+    `, userId, sessionId).Scan(&rec.UserId,
+        &rec.SessionId,
+        &rec.LastActivity,
+        &rec.InactiveExpiry,
+        &rec.SessionExpiry,
+        &rec.Active)
     if err == sql.ErrNoRows || !rec.Active {
         return false
     }
 
+    // ASSUMPTION: from this point forward, rec.Active in the
+    // database is assumed true
+
+    //TODO: I need to update the database when active to inactive state
     // need current date timed. Duration += CurrentTime - Last actvity
     var currentTime time.Time = time.Now()
-    inactiveTime = asdfasdfsda
-    rec.Duration += inactiveTime
-    if rec.Duration >= MAX_OPEN_SESSION || inactiveTime >= MAX_INACTIVITY {
+    if currentTime > rec.InactiveExpiry 
+        || currentTime > rec.SessionExpiry {
+        
         rec.Active = false
-        return false
+    } 
+
+    var delta Date = currentTime - rec.InactiveExpiry
+    // When confined to a single time zone 
+    if delta < 0 {
+        rec.Active = false
     }
 
-    rec.LastActivity = currentTime
+    // Update the database because session has been deactivated
+    if !rec.Active {
+        adfa
+    }
+
+    // Updating the database InactiveExpiry column for every
+    // database transaction seems too expensive.  I am going to
+    // update after a UpdateTimeCriterion amount of time
+    if delta > UpdateInactiveExpiryTimeCriterion {
+        rec.InactiveExpiry = currentTime + MaxInactiveTime 
+    }
+
 
 }
 
