@@ -16,7 +16,7 @@ type ErrInfo struct {
 }
 
 
-func makeHomePageFunc(appd *App) func(http.ResponseWriter, *http.Request) {
+func makeHomePageFunc(appd *App) http.HandlerFunc {
     var tmpl *template.Template
     var err error
 

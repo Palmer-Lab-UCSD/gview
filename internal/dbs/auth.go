@@ -33,13 +33,19 @@ type UserRecord struct {
 
 type SessionRecord struct {
     UserId          string
-    SessionId       string
+    SessionId       []byte
     LastActive      time.Time
     InactiveExpiry  time.Time
     SessionExpiry   time.Time
     Active          bool
 }
 
+func newSessRecord() *SessionRecord {
+    var sessRec *SessionRecord = new(SessionRecord)
+    sessRec.SessionId = make([]byte, sha512.Size)
+
+    return sessRec
+}
 
 // Note that all int64 times need to be in nanoseconds
 type AuthDb struct {
@@ -80,32 +86,42 @@ func (db *AuthDb) IsValidSignIn(email string, pw string) (bool, error) {
 }
 
 
-// Checks whether session is active and updates database accordingly
+// Get a session record from the database
 //
-// If current session is active and the current time is less than
-// the session expiry and inactivity expiry then evaluate to true,
-// else false.  This is important, cases that I don't account for
-// will default to false.
-func(db *AuthDb) IsSessionActive(userId string, sessionId string) (bool, error) {
+// Given a session id from the client, find the associated session
+// record.  If the session has expired, but its active field is set
+// to true, update the record so that active is false.
+//
+// ARGUMENTS
+//  clientSessionId: the session id provided by the client in a cookie
+//
+// RETURNS
+//  *SessionRecord: If no valid record with the client provided session
+//      exists, then return nil, ortherwise return a pointer to the 
+//      record. 
+//  err: the err indicates that the query failed or that the requirements
+//      were not met, for example more than one record was updated to
+//      the database, which should never happen. 
+func(db *AuthDb) GetSession(clientSessId string) (*SessionRecord, error) {
     var err error
-    var rec SessionRecord
+    var rec *SessionRecord = newSessRecord()
     var res sql.Result
 
-    // Note: sha256.Size is 32 
     // Note: sha512.Size is 64
-    var shaSumSessionId [sha512.Size]byte = sha512.Sum512([]byte(sessionId))
+    var shaSumSessionId [sha512.Size]byte = sha512.Sum512([]byte(clientSessId))
 
     err = db.QueryRow(`SELECT 
     FROM sessions 
-    WHERE user_id = $1 AND session_id = $2;
-    `, userId, shaSumSessionId).Scan(&rec.UserId,
+    WHERE session_id = $1;`, shaSumSessionId).Scan(&rec.UserId,
         &rec.SessionId,
         &rec.LastActive,
         &rec.InactiveExpiry,
         &rec.SessionExpiry,
         &rec.Active)
-    if err == sql.ErrNoRows || !rec.Active {
-        return false, nil
+    if err == sql.ErrNoRows {
+        return nil, nil
+    } else if err != nil {
+        return nil, err
     }
 
     // ASSUMPTION: from this point forward, rec.Active in the
@@ -121,22 +137,21 @@ func(db *AuthDb) IsSessionActive(userId string, sessionId string) (bool, error) 
         if now.Sub(rec.InactiveExpiry) > db.MinTimeUpdateDbActivity {
 
             rec.InactiveExpiry = now.Add(db.MaxTimeInactive)
-            // TODO: Update db
-            // TODO: Consider submitting database update concurrently
-            //      using goroutine
 
             db.Exec(`UPDATE sessions SET last_active = $1
-            WHERE user_id = $2 AND session_id = $3;`, now, userId, shaSumSessionId)
+            WHERE session_id = $2;`, now, shaSumSessionId)
 
             if err != nil {
-                return false, err
-            } else if rows, err := res.RowsAffected(); rows != 1 || err != nil {
-                return false, errors.New("Matched more than one row")
+                return nil, err
+            } else if rows, err := res.RowsAffected(); err != nil {
+                return nil, err
+            } else if rows != 1 {
+                return nil, errors.New("Updated more than one row, when one was expected")
             }
         }
 
-        return true, nil
-    } 
+        return rec, nil
+    }
 
     // Handle all other cases, I assume that they indicate session 
     // has expired. Consequently, active being true in the database
@@ -144,9 +159,14 @@ func(db *AuthDb) IsSessionActive(userId string, sessionId string) (bool, error) 
     // TODO: Consider submitting database update concurrently
     //      using goroutine
     res, err = db.Exec(`UPDATE sessions SET active = false
-    WHERE user_id = $1 AND session_id = $2;`, userId, shaSumSessionId)
+    WHERE session_id = $1;`, shaSumSessionId)
+    if rows, err := res.RowsAffected(); err != nil {
+        return nil, err
+    } else if rows != 1 {
+        return nil, errors.New("Updated more than one row, when one was expected")
+    }
 
-    return false, nil
+    return nil, nil
 }
 
 

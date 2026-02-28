@@ -1,6 +1,17 @@
-// The app package manages user web interface
+// gview
 // 
 // 2026 Palmer Lab
+//
+// "app" package manages user web interface
+// 
+// Required web application resources are:
+//      * logger
+//      * ui configuration
+//      * api endpoint urls:
+//          * authentication
+//          * rat genetic data and analyses
+//
+//
 //
 package app
 
@@ -10,43 +21,36 @@ import (
 
 	"github.com/Palmer-Lab-UCSD/gview/internal/config"
 	"github.com/Palmer-Lab-UCSD/gview/internal/logger"
+	mw "github.com/Palmer-Lab-UCSD/gview/internal/middleware"
 )
 
 
 
 type App struct {
-    Cfg         *config.Config
+    Vis         *config.VisConfig
+    Ui          *config.UiConfig
     Log         *logger.AppLogger
     ErrTmpl     *template.Template
 }
 
 
-func InitApp(cfg *config.Config,
-    log *logger.AppLogger, 
-    errTmpl *template.Template) *App {
+func Routes(cfg *config.Config,
+    log *logger.AppLogger,
+    errTmpl *template.Template) (*http.ServeMux, error) {
 
-    // appd is short hand for app data
-    var appd *App = new(App)
+    appd := &App{Vis: cfg.Vis, Ui: cfg.Ui, Log: log, ErrTmpl: errTmpl}
 
-    appd.Cfg = cfg
-	appd.Log = log
-    appd.ErrTmpl = errTmpl
-
-    return appd
-}
-
-
-func Routes(appd *App) *http.ServeMux {
 	var mux *http.ServeMux = http.NewServeMux()
 
-	mux.HandleFunc("GET /", makeHomePageFunc(appd))
-	mux.HandleFunc("GET /signIn", makeSignInPageFunc(appd))
-	mux.HandleFunc("GET /workspace/{user_id}", makeWorkspacePageFunc(appd))
+	mux.HandleFunc("GET /", mw.SessionAuth(makeHomePageFunc(appd)))
+	mux.HandleFunc("GET /signIn", mw.SessionAuth(makeSignInPageFunc(appd)))
+	mux.HandleFunc("GET /workspace/{user_id}",
+        makeWorkspacePageFunc(appd))
 
 	mux.Handle("GET /public/static/",
 		http.StripPrefix("/public/static",
 			http.FileServer(http.Dir(appd.Cfg.Ui.StaticDir))))
 
-    return mux
+    return mux, nil
 }
 

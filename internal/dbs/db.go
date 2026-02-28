@@ -47,17 +47,17 @@ func mkDbLoginStr(dbCfg *config.DatabaseConfig) string {
 // I need to  update all database connecctions to meet the new 
 // more generalized approach
 
-func OpenDbConn(sqlDB *sql.DB, dbCfg *config.DatabaseConfig) error {
+func OpenDbConn(dbCfg *config.DatabaseConfig) (sql.DB, error) {
 
 	sqlDB, err := sql.Open(dbCfg.Connection.Driver, mkDbLoginStr(dbCfg))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
     // verify database connection
     err = sqlDB.Ping()
     if err != nil {
-        return err
+        return nil, err
     }
-    return nil
+    return sqlDB, nil
 }

@@ -1,9 +1,15 @@
 // Launch the web server 
 //
+// Importantly, all resources shared among the web application (app) 
+// and api end points are instantiated and passed to their dependent
+// components.
+//
+//
 // ARGUMENTS
 //
 // -c   print log to server standard out
 // --config path to server configuration file
+//
 
 package main
 
@@ -13,6 +19,7 @@ import (
 	"os"
     "net/http"
     "flag"
+    "html/template"
     "path/filepath"
     "errors"
 
@@ -55,7 +62,7 @@ func main() {
 
     var cfg *config.Config
     var logs *logger.AppLogger
-    var errTmpl *ui.GviewTemplate
+    var errTmpl *template.Template
 
     cfg, err = config.InitConfig(logsToStdout, configFilename)
 	if err != nil {
@@ -77,8 +84,6 @@ func main() {
         "ERROR: failed initalizing error template, %s\n", err)
         os.Exit(1)
 	}
-
-    var appSettings *app.App = &app.App{Cfg: cfg, Log: logs, ErrTmpl: errTmpl}
 
     // Instantiate Authentication API http multiplexer, instantiation
     // includes establishing a connect to the auth postgres database
@@ -102,9 +107,19 @@ func main() {
         os.Exit(2)
     }
 
+    // Instantiate app settings data and router multiplex
+    var appRoutes *http.ServeMux
+    appRoutes, err = app.Routes(cfg, logs, errTmpl)
+    if err != nil {
+        fmt.Fprintf(os.Stderr,
+        "ERROR: failed initalizing application routes, %s\n", err)
+        os.Exit(1)
+	}
+
+
     var mux *http.ServeMux = http.NewServeMux()
 
-    mux.Handle("/", app.Routes(appSettings))
+    mux.Handle("/", appRoutes)
     mux.Handle("/api/auth", apiAuthRoutes)
     mux.Handle("/api/vis", apiVisRoutes)
 
